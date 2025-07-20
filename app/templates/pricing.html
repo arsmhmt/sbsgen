@@ -5,8 +5,8 @@
 {% block content %}
 <div class="container py-5">
   <div class="text-center mb-5">
-    <h1 class="fw-bold">Upgrade to SmartSlip Pro</h1>
-    <p class="lead text-muted">Unlock full AI-powered features and win smarter</p>
+    <h1 class="fw-bold">{{ get_text('Upgrade to SmartSlip Pro', lang) }}</h1>
+    <p class="lead text-muted">{{ get_text('Unlock full AI-powered features and win smarter', lang) }}</p>
   </div>
 
   <div class="row justify-content-center">
@@ -14,14 +14,14 @@
     <div class="col-md-4">
       <div class="card border shadow-sm mb-4">
         <div class="card-body text-center">
-          <h4 class="card-title">Free Plan</h4>
+          <h4 class="card-title">{{ get_text('Free Plan', lang) }}</h4>
           <h2 class="my-3">₺0</h2>
           <ul class="list-unstyled mb-4">
-            <li>✅ Limited slips/month</li>
-            <li>❌ AI win prediction</li>
-            <li>❌ Priority support</li>
+            <li>✅ {{ get_text('Limited slips/month', lang) }}</li>
+            <li>❌ {{ get_text('AI win prediction', lang) }}</li>
+            <li>❌ {{ get_text('Priority support', lang) }}</li>
           </ul>
-          <button class="btn btn-outline-secondary" disabled>Current Plan</button>
+          <button class="btn btn-outline-secondary" disabled>{{ get_text('Current Plan', lang) }}</button>
         </div>
       </div>
     </div>
@@ -30,14 +30,14 @@
     <div class="col-md-4">
       <div class="card border-primary shadow-sm mb-4">
         <div class="card-body text-center">
-          <h4 class="card-title">Pro Plan</h4>
+          <h4 class="card-title">{{ get_text('Pro Plan', lang) }}</h4>
           <h2 class="my-3">₺4.99</h2>
           <ul class="list-unstyled mb-4">
-            <li>✅ Unlimited slips</li>
-            <li>✅ AI win prediction</li>
-            <li>✅ Pro analytics + filters</li>
+            <li>✅ {{ get_text('Unlimited slips', lang) }}</li>
+            <li>✅ {{ get_text('AI win prediction', lang) }}</li>
+            <li>✅ {{ get_text('Pro analytics + filters', lang) }}</li>
           </ul>
-          <a href="/upgrade" class="btn btn-primary">Upgrade Now</a>
+          <a href="/upgrade" class="btn btn-primary">{{ get_text('Upgrade Now', lang) }}</a>
         </div>
       </div>
     </div>

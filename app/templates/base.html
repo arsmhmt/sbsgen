@@ -35,12 +35,30 @@
                 <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
               </li>
             {% endif %}
+            <!-- Language Switcher -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.cookies.get('lang') == 'tr' or request.query_params.get('lang') == 'tr' %} Türkçe {% else %} English {% endif %}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                <li><a class="dropdown-item" href="?lang=en" onclick="setLang('en')">English</a></li>
+                <li><a class="dropdown-item" href="?lang=tr" onclick="setLang('tr')">Türkçe</a></li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>
     </nav>
 
+
     {% block content %}{% endblock %}
+
+    <script>
+      function setLang(lang) {
+        document.cookie = `lang=${lang};path=/;max-age=31536000`;
+        window.location.search = `?lang=${lang}`;
+      }
+    </script>
 
     <!-- Footer -->
     <footer class="footer mt-auto py-3 bg-dark text-light">

@@ -24,11 +24,14 @@ login_manager = LoginManager()
 migrate = Migrate() # Instantiate Flask-Migrate
 
 def create_app():
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "dev"),
         SQLALCHEMY_DATABASE_URI=os.getenv("DATABASE_URL"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        ENV=os.getenv("FLASK_ENV", "production"),
+        DEBUG=os.getenv("FLASK_DEBUG", "False").lower() in ("1", "true", "yes")
     )
 
     # Ensure instance folder exists

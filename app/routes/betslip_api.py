@@ -1,5 +1,44 @@
 
-betslip_api = Blueprint("betslip_api", __name__)
+from fastapi import APIRouter, Depends, Request, HTTPException, status
+from fastapi.responses import RedirectResponse, JSONResponse
+import requests
+import os
+from app.services.api_football import fetch_fixtures  # your service stub
+import random  # remove once you have real odds
+from app.utils.auth_utils import get_current_user, get_db
+from sqlalchemy.orm import Session
+
+router = APIRouter(prefix="/api", tags=["betslip"])
+
+@router.get("/betslip-analytics")
+def betslip_analytics(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    from datetime import datetime, timedelta
+    today = datetime.utcnow().date()
+    dates = [(today - timedelta(days=i)) for i in range(29, -1, -1)]
+    date_labels = [d.strftime('%d %b') for d in dates]
+    success_ratios = []
+    Betslip = db.__class__.models['Betslip'] if hasattr(db.__class__, 'models') and 'Betslip' in db.__class__.models else None
+    if not Betslip:
+        from app.models.betslip import Betslip
+    for d in dates:
+        slips = db.query(Betslip).filter(
+            Betslip.user_id == user.id,
+            Betslip.created_at >= datetime.combine(d, datetime.min.time()),
+            Betslip.created_at < datetime.combine(d + timedelta(days=1), datetime.min.time())
+        ).all()
+        total = len(slips)
+        won = sum(1 for s in slips if s.status == 'won')
+        ratio = (won / total * 100) if total > 0 else 0
+        success_ratios.append(round(ratio, 1))
+    all_slips = db.query(Betslip).filter(Betslip.user_id == user.id).all()
+    total_all = len(all_slips)
+    won_all = sum(1 for s in all_slips if s.status == 'won')
+    user_win_pct = round(won_all / total_all * 100, 1) if total_all > 0 else None
+    return {
+        "dates": date_labels,
+        "success_ratios": success_ratios,
+        "user_win_pct": user_win_pct
+    }
 
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 from fastapi.responses import RedirectResponse

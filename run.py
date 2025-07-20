@@ -7,10 +7,13 @@ from app import create_app, db
 
 app = create_app()
 
+
 if __name__ == "__main__":
-    if os.getenv("FLASK_ENV") != "production":
+    flask_env = os.getenv("FLASK_ENV", "production")
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("1", "true", "yes")
+    if flask_env != "production":
         with app.app_context():
             db.create_all()
-    app.run(debug=True)
+    app.run(debug=debug_mode)
 
 

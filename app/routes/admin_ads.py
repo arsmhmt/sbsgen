@@ -1,4 +1,6 @@
 
+
+
 from fastapi import APIRouter, Depends, Request, Form, HTTPException, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -13,6 +15,7 @@ def admin_required(user=Depends(get_current_user)):
     if not getattr(user, "is_admin", False):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
     return user
+
 
 # List ads
 @router.get("/")
@@ -85,3 +88,26 @@ def delete_ad(ad_id: int, db: Session = Depends(get_db), user=Depends(admin_requ
         raise HTTPException(status_code=404, detail="Ad not found")
     db.delete(ad); db.commit()
     return RedirectResponse("/admin/ads/", status_code=status.HTTP_303_SEE_OTHER)
+
+# Track ad impression
+@router.post("/impression/{ad_id}")
+def track_impression(ad_id: int, db: Session = Depends(get_db)):
+    ad = db.query(Ad).filter_by(id=ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    ad.impressions = getattr(ad, "impressions", 0) + 1
+    db.commit()
+    return {"ad_id": ad_id, "impressions": ad.impressions}
+
+# Show ad statistics (impressions/clicks)
+@router.get("/stats/{ad_id}")
+def ad_stats(ad_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
+    ad = db.query(Ad).filter_by(id=ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    return {
+        "ad_id": ad_id,
+        "impressions": getattr(ad, "impressions", 0),
+        "clicks": getattr(ad, "clicks", 0),
+        "preview": ad.image_url
+    }
