@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Upgrade to Pro - SmartSlip{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="fw-bold">Upgrade to SmartSlip Pro</h1>
+    <p class="lead text-muted">Unlock full AI-powered features and win smarter</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <!-- Free Plan -->
+    <div class="col-md-4">
+      <div class="card border shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h4 class="card-title">Free Plan</h4>
+          <h2 class="my-3">₺0</h2>
+          <ul class="list-unstyled mb-4">
+            <li>✅ Limited slips/month</li>
+            <li>❌ AI win prediction</li>
+            <li>❌ Priority support</li>
+          </ul>
+          <button class="btn btn-outline-secondary" disabled>Current Plan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro Plan -->
+    <div class="col-md-4">
+      <div class="card border-primary shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h4 class="card-title">Pro Plan</h4>
+          <h2 class="my-3">₺4.99</h2>
+          <ul class="list-unstyled mb-4">
+            <li>✅ Unlimited slips</li>
+            <li>✅ AI win prediction</li>
+            <li>✅ Pro analytics + filters</li>
+          </ul>
+          <a href="/upgrade" class="btn btn-primary">Upgrade Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

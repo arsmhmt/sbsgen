@@ -1,0 +1,144 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if ad else 'New' }} Ad - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{% if ad %}Edit Ad{% else %}Create New Ad{% endif %}</h1>
+        <a href="{{ url_for('ads.ad_admin') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Ads
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin.edit_ad', ad_id=ad.id) if ad else url_for('admin.new_ad') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="title" class="form-label">Ad Title</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ ad.title if ad else '' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="location" class="form-label">Location</label>
+                        <select class="form-select" id="location" name="location" required>
+                            <option value="" disabled {% if not ad %}selected{% endif %}>Select location</option>
+                            <option value="top" {% if ad and ad.location == 'top' %}selected{% endif %}>Top Banner</option>
+                            <option value="sidebar" {% if ad and ad.location == 'sidebar' %}selected{% endif %}>Sidebar</option>
+                            <option value="footer" {% if ad and ad.location == 'footer' %}selected{% endif %}>Footer</option>
+                            <option value="post_submit" {% if ad and ad.location == 'post_submit' %}selected{% endif %}>After Betslip</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="slot_number" class="form-label">Slot Number (Sidebar/Banner)</label>
+                        <input type="number" class="form-control" id="slot_number" name="slot_number" min="1" max="5" 
+                               value="{{ ad.slot_number if ad and ad.slot_number is not none else '' }}" placeholder="1-5 for sidebar, 0 for banner">
+                        <div class="form-text">1-5 for sidebar slots, 0 for banner (top), leave blank for auto</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image_file" class="form-label">Upload Image (JPG, PNG, GIF)</label>
+                    <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+                    {% if ad and ad.image_url %}
+                        <div class="mt-2">
+                            <img src="{{ ad.image_url }}" alt="Current Image" style="max-width:120px; max-height:60px;">
+                        </div>
+                    {% endif %}
+                    <div class="form-text">Or paste an image URL below (recommended size: 1200x300 for top, 300x250 for sidebar, 1200x100 for footer)</div>
+                    <input type="url" class="form-control mt-2" id="image_url" name="image_url" value="{{ ad.image_url if ad else '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="url" class="form-label">Destination URL</label>
+                    <input type="url" class="form-control" id="url" name="url" 
+                           value="{{ ad.url if ad else '' }}" required>
+                    <div class="form-text">URL where users will be redirected when clicking the ad</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="start_date" class="form-label">Start Date (optional)</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                               value="{{ ad.start_date.strftime('%Y-%m-%d') if ad and ad.start_date else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="end_date" class="form-label">End Date (optional)</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date"
+                               value="{{ ad.end_date.strftime('%Y-%m-%d') if ad and ad.end_date else '' }}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="max_clicks" class="form-label">Max Clicks (optional)</label>
+                        <input type="number" class="form-control" id="max_clicks" name="max_clicks" 
+                               value="{{ ad.max_clicks if ad and ad.max_clicks else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="max_impressions" class="form-label">Max Impressions (optional)</label>
+                        <input type="number" class="form-control" id="max_impressions" name="max_impressions"
+                               value="{{ ad.max_impressions if ad and ad.max_impressions else '' }}">
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                           {% if not ad or ad.is_active %}checked{% endif %}>
+                    <label class="form-check-label" for="is_active">Active</label>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('ads.ad_admin') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if ad %}Update{% else %}Create{% endif %} Ad
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if ad %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Ad Preview</h6>
+        </div>
+        <div class="card-body">
+            <div class="text-center">
+                <h5 class="mb-3">{{ ad.title }}</h5>
+                <a href="#" class="d-inline-block mb-3">
+                    <img src="{{ ad.image_url }}" alt="Ad Preview" class="img-fluid" style="max-height: 200px;">
+                </a>
+                <p class="text-muted">Clicking will take users to: <code>{{ ad.url|truncate(50) }}</code></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Update preview when form fields change
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleInput = document.getElementById('title');
+        const imageUrlInput = document.getElementById('image_url');
+        const urlInput = document.getElementById('url');
+        
+        function updatePreview() {
+            const previewTitle = document.querySelector('.card-preview h5');
+            const previewImage = document.querySelector('.card-preview img');
+            const previewUrl = document.querySelector('.card-preview .text-muted code');
+            
+            if (previewTitle) previewTitle.textContent = titleInput.value || 'Ad Title';
+            if (previewImage) previewImage.src = imageUrlInput.value || 'https://via.placeholder.com/1200x300';
+            if (previewUrl) previewUrl.textContent = urlInput.value || 'https://example.com';
+        }
+        
+        [titleInput, imageUrlInput, urlInput].forEach(input => {
+            input?.addEventListener('input', updatePreview);
+        });
+    });
+</script>
+{% endblock %}

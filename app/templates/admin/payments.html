@@ -1,0 +1,30 @@
+{% extends 'admin/dashboard.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Payments</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Amount</th>
+        <th>Coin</th>
+        <th>Status</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for betslip in betslips %}
+      <tr>
+        <td>{{ betslip.id }}</td>
+        <td>{{ betslip.user_id }}</td>
+        <td>{{ betslip.amount }}</td>
+        <td>{{ betslip.coin }}</td>
+        <td>{{ 'Paid' if betslip.paid else 'Unpaid' }}</td>
+        <td>{{ betslip.created_at.strftime('%Y-%m-%d %H:%M') if betslip.created_at else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

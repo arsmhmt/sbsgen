@@ -1,0 +1,487 @@
+
+{% extends "user/base.html" %}
+
+{% block title %}Dashboard - Smart Bet Slip{% endblock %}
+
+{% block styles %}
+<style>
+  .dashboard-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  
+  .betslip-form-pro {
+    transition: all 0.3s ease;
+  }
+  .betslip-form-pro:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(67,233,123,0.15);
+  }
+  
+  .form-control {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+  }
+  .form-control:focus {
+    border-color: #43e97b;
+    box-shadow: 0 0 0 0.2rem rgba(67,233,123,0.25);
+  }
+  
+  .form-select {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+  }
+  
+  .betslip-highlight-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,255,248,0.9) 100%);
+  }
+  
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #43e97b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .stat-card {
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+    border: 1px solid #e9ecef;
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .form-label {
+    font-size: 0.85rem;
+    color: #495057;
+    font-weight: 500;
+  }
+  
+  .form-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+  }
+  
+  .table {
+    font-size: 0.9rem;
+  }
+  
+  .table th {
+    font-weight: 600;
+    color: #495057;
+  }
+  
+  .table td {
+    vertical-align: middle;
+  }
+  
+  .badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+    border-radius: 0.5rem;
+  }
+</style>
+{% endblock %}
+
+
+{% block dashboard_content %}
+{% set total_betslips = user.betslips.count() %}
+{% set completed_betslips = user.betslips.filter_by(status='completed').count() %}
+{% set success_rate = (completed_betslips / total_betslips * 100)|round(1) if total_betslips > 0 else 0 %}
+<div class="container-fluid px-0" style="background: linear-gradient(145deg, #f8fff8 0%, #e6ffe6 100%);">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <!-- Hero Section -->
+      <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-success mb-3">Welcome Back!</h1>
+        <p class="lead text-muted">Generate your smart betslips with our advanced AI-powered system</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <!-- Banner Ad Slot -->
+      <div class="ad-slot ad-banner mb-4 text-center">
+        {% if banner_ad %}
+          <a href="{{ url_for('user.track_ad_click', ad_id=banner_ad.id) }}" target="_blank">
+            <img src="{{ banner_ad.image_url }}" alt="Banner Ad" class="img-fluid" style="max-width:1200px;max-height:90px;width:100%;object-fit:contain;border-radius:12px;" loading="lazy">
+          </a>
+        {% else %}
+          <div class="bg-light border rounded py-3" style="min-height:90px;max-width:1200px;margin:auto;">Banner 1200x90</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center g-4" style="max-width:1200px;margin:auto;">
+    <!-- Betslip Generator Form -->
+    <div class="col-lg-9 col-md-12">
+      <div class="dashboard-card mb-4 h-100 betslip-highlight-card border border-3 border-success shadow-sm" style="position:relative; overflow:hidden; border-radius:1.5rem;">
+        <div class="card-header bg-success bg-opacity-10 border-bottom border-success d-flex align-items-center" style="border-top-left-radius:1.5rem;border-top-right-radius:1.5rem;">
+          <div class="d-flex align-items-center">
+            <div class="stat-card text-center">
+              <div class="stat-icon bg-success bg-opacity-10 rounded-circle mb-2">
+                <i class="bi bi-coin text-success"></i>
+              </div>
+              <h6 class="mb-0">Credits</h6>
+              <span class="badge bg-success bg-opacity-75">{{ user.free_slip_credits }}</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <div class="stat-card text-center">
+              <div class="stat-icon bg-info bg-opacity-10 rounded-circle mb-2">
+                <i class="bi bi-graph-up text-info"></i>
+              </div>
+              <h6 class="mb-0">Success Rate</h6>
+              <span class="badge bg-info bg-opacity-75">{{ success_rate }}%</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-4 betslip-highlight-body betslip-form-modern">
+          <!-- Filter and Search Controls -->
+          <div class="row g-2 mb-3 align-items-end betslip-filters-row rounded-3 shadow-sm px-3 py-2" style="background:linear-gradient(90deg,#f8fff8 0%,#e6ffe6 100%);border:1.5px solid #43e97b;">
+            <div class="col-md-3">
+              <label for="startInSelect" class="form-label mb-1 text-success fw-semibold">Starting In</label>
+              <select id="startInSelect" class="form-select form-select-sm border-success bg-white">
+                <option value="">Any time</option>
+                <option value="30m">30m</option>
+                <option value="1h">1h</option>
+                <option value="3h">3h</option>
+                <option value="6h">6h</option>
+                <option value="12h">12h</option>
+                <option value="24h">24h</option>
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label for="searchInput" class="form-label mb-1 text-success fw-semibold">Search</label>
+              <div class="input-group">
+                <input type="text" id="searchInput" class="form-control border-success bg-white" placeholder="Teams, Matches, Leagues...">
+                <button class="btn btn-outline-success" type="button" id="searchBtn">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- New Smart Betslip Generator Form -->
+          <form id="betslipForm" autocomplete="off" class="betslip-form-pro rounded-4 shadow-lg px-4 py-3" style="background:linear-gradient(90deg,#f8fff8 0%,#e6ffe6 100%);border:2.5px solid #43e97b;">
+            <div class="row g-3 align-items-start mb-2">
+              <div class="col-md-4">
+                <label for="sportsSelect" class="form-label text-success fw-semibold">Sports</label>
+                <select id="sportsSelect" class="form-select border-success bg-white" multiple required style="font-size: 0.95rem; min-height: 80px;"></select>
+                <div class="form-text text-muted small">Select one or more sports.</div>
+              </div>
+              <div class="col-md-4">
+                <label for="leaguesSelect" class="form-label text-success fw-semibold">Country / League</label>
+                <select id="leaguesSelect" class="form-select border-success bg-white" multiple></select>
+                <div class="form-text text-muted small">Filter by country or league (optional).</div>
+              </div>
+              <div class="col-md-4">
+                <label for="marketsSelect" class="form-label text-success fw-semibold">Markets</label>
+                <select id="marketsSelect" class="form-select border-success bg-white" multiple></select>
+                <div class="form-text text-muted small">Select one or more markets.</div>
+              </div>
+            </div>
+            <div class="row g-3 mt-3 align-items-end">
+              <div class="col-md-2">
+                <label for="minOddInput" class="form-label text-success fw-semibold">Min Odd</label>
+                <input type="number" step="0.01" min="1.01" id="minOddInput" class="form-control border-success bg-white" value="1.50">
+              </div>
+              <div class="col-md-2">
+                <label for="maxOddInput" class="form-label text-success fw-semibold">Max Odd</label>
+                <input type="number" step="0.01" min="1.01" id="maxOddInput" class="form-control border-success bg-white" value="2.50">
+              </div>
+              <div class="col-md-2">
+                <label for="matchCountInput" class="form-label text-success fw-semibold"># Matches</label>
+                <input type="number" min="1" max="20" id="matchCountInput" class="form-control border-success bg-white" value="5">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-success fw-semibold">Total Odds</label>
+                <div class="form-control bg-light border-success text-success fw-bold" id="totalOdds">--</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-success fw-semibold">Win Probability</label>
+                <div class="form-control bg-light border-success text-success fw-bold" id="winProb">--</div>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-success btn-sm w-100 shadow-sm fw-bold px-2 py-1" id="generateBetslipBtn" style="font-size:1.05rem;letter-spacing:0.2px;border-radius:1.2rem;background:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);border:none;box-shadow:0 1px 4px rgba(67,233,123,0.10);transition:background 0.2s;min-height:36px;">
+                  <i class="bi bi-magic me-1"></i> Generate Betslip
+                </button>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-12">
+                <div id="betslipPreview" class="p-3 bg-white rounded-4 shadow-lg border border-3 border-success betslip-preview-pro" style="max-width:520px;margin:auto;box-shadow:0 4px 24px rgba(67,233,123,0.13);">
+                  <div class="betslip-ticket bg-light border border-success rounded-4 p-3 mx-auto" style="max-width:480px;box-shadow:0 2px 12px rgba(67,233,123,0.08);">
+                    <div class="betslip-header text-center mb-2">
+                      <span class="fw-bold text-success" style="font-size:1.3rem;"><i class="bi bi-ticket-perforated me-1"></i>Smart Betslip</span>
+                    </div>
+                    <div id="betslipTicketBody">
+                      <div class="text-muted text-center">Your generated betslip will appear here.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-2">
+                  <button type="button" class="btn btn-outline-success btn-sm fw-bold border-2" id="savePdfBtn"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+                  <button type="button" class="btn btn-outline-success btn-sm fw-bold border-2" id="saveImgBtn"><i class="bi bi-image"></i> IMG</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Sidebar: Stacked Ad Slots (Sidebar Ad + 300x100 Ad) -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="ad-slot ad-sidebar mb-4">
+        {# Rotating ads example: pass a list of ads as 'sidebar_ads' from backend #}
+        {% if sidebar_ads %}
+          {% for ad in sidebar_ads %}
+            {% if ad.is_active %}
+              <a href="{{ url_for('user.track_ad_click', ad_id=ad.id) }}" target="_blank">
+                <img src="{{ ad.image_url }}" alt="Sidebar Ad" class="img-fluid w-100 mb-2" style="max-width:100%;height:auto;">
+              </a>
+            {% endif %}
+          {% endfor %}
+        {% elif sidebar_ad %}
+          <img src="{{ sidebar_ad.image_url }}" alt="Sidebar Ad" class="img-fluid w-100" style="max-width:100%;height:auto;">
+        {% else %}
+          <div class="bg-light border rounded py-3 text-center" style="min-height:250px;">Sidebar Ad 300x250</div>
+        {% endif %}
+      </div>
+{# Flask backend: To get lists from multi-select fields use:
+    sports = request.form.getlist('sports')
+    leagues = request.form.getlist('leagues')
+    markets = request.form.getlist('markets')
+#}
+      <div class="ad-slot ad-300x100 mb-4">
+        {% if ad_300x100 %}
+          <a href="{{ url_for('user.track_ad_click', ad_id=ad_300x100.id) }}" target="_blank">
+            <img src="{{ ad_300x100.image_url }}" alt="Ad 300x100" class="img-fluid" style="max-width:300px;max-height:100px;width:100%;object-fit:contain;border-radius:8px;" loading="lazy">
+          </a>
+        {% else %}
+          <div class="bg-light border rounded py-2 text-center" style="min-height:100px;max-width:300px;margin:auto;">Ad 300x100</div>
+        {% endif %}
+      </div>
+      <!-- Add more ad slots for top betting sites here if needed -->
+    </div>
+  </div>
+  <div class="row justify-content-center g-4 mt-2" style="max-width:1200px;margin:auto;">
+    <div class="col-lg-9 col-md-12">
+      <div class="dashboard-card h-100 mb-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2 text-info"></i>Recent Betslips</h2>
+            <span class="badge bg-info bg-opacity-75">{{ recent_betslips|length }}</span>
+          </div>
+          <a href="{{ url_for('user.betslips') }}" class="btn btn-sm btn-outline-primary dashboard-btn">View All</a>
+        </div>
+        <div class="card-body p-4 bg-dark bg-opacity-50 rounded-bottom-3">
+          {% if recent_betslips %}
+          <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Created At</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for betslip in recent_betslips %}
+                <tr>
+                  <th scope="row">{{ loop.index }}</th>
+                  <td>{{ betslip.created_at.strftime('%Y-%m-%d %H:%M') if betslip.created_at else '' }}</td>
+                  <td>
+                    <div class="stat-card text-center">
+                      <div class="stat-icon bg-info bg-opacity-10 rounded-circle mb-2">
+                        <i class="bi bi-graph-up text-info"></i>
+                      </div>
+                      <h6 class="mb-0">Success Rate</h6>
+                      <span class="badge bg-info bg-opacity-75">{{ (user.betslips.filter_by(status='completed').count() / user.betslips.count() * 100)|round(1) if user.betslips|length > 0 else 0 }}%</span>
+                    </div>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('user.view_betslip', token=betslip.token) }}" class="btn btn-sm btn-outline-primary">View</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+              <i class="bi bi-credit-card text-muted" style="font-size: 2.5rem;"></i>
+              <div class="loading-spinner ms-3"></div>
+            </div>
+            <p class="mt-2 text-muted">No betslips yet. Generate your first one above!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="dashboard-card h-100 mb-0">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h2 class="h5 mb-0"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Quick Stats</h2>
+          <span class="badge bg-info dashboard-badge">Stats</span>
+        </div>
+        <div class="card-body p-4 bg-dark bg-opacity-50 rounded-bottom-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h6 class="mb-0">Betslips Generated</h6>
+              <span class="text-muted small">This month</span>
+            </div>
+            <span class="badge bg-primary rounded-pill">0</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">Total Matches</h6>
+              <span class="text-muted small">All time</span>
+            </div>
+            <span class="badge bg-primary rounded-pill">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- No Credits Modal (single instance) -->
+<div class="modal fade" id="noCreditsModal" tabindex="-1" aria-labelledby="noCreditsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="noCreditsModalLabel">Out of Free Credits</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="bi bi-emoji-frown display-1 text-warning"></i>
+                    <h4 class="mt-3">You've used all your free credits!</h4>
+                    <p>Upgrade to Pro for unlimited betslips or refer friends to earn more free credits.</p>
+                </div>
+                <div class="d-grid gap-2 mb-3">
+                    <a href="{{ url_for('main.pricing') }}" class="btn btn-primary">
+                        <i class="bi bi-star-fill me-1"></i>Upgrade to Pro
+                    </a>
+                </div>
+                <div class="border rounded bg-success bg-opacity-10 p-3 mb-2">
+                    <div class="text-center mb-2 text-success fw-semibold"><i class="bi bi-people-fill me-1"></i>Refer Friends & Earn Credits</div>
+                    <div class="small text-dark mb-1 text-center">Share your referral link below:</div>
+                    <div class="input-group input-group-sm mb-2" style="max-width: 320px; margin: 0 auto;">
+                        <input type="text" class="form-control border-0 referral-link-input" id="modalReferralLink" value="{{ url_for('user.referrals', _external=True) }}?ref={{ current_user.referral_code }}" readonly>
+                        <button class="btn btn-outline-success" type="button" id="modalCopyReferralBtn" title="Copy link"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-success btn-sm px-3" type="button" id="modalShareReferralBtn"><i class="bi bi-share me-1"></i>Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<script src="{{ url_for('static', filename='js/betslip-dynamic.js') }}"></script>
+<script>
+</script>
+<style>
+  #sportsSelect, #leaguesSelect, #marketsSelect {
+    font-size: 0.95rem;
+    min-height: 80px;
+  }
+  /* Make selected items in sports and markets selects smaller */
+  #sportsSelect + .select2-container .select2-selection__choice,
+  #marketsSelect + .select2-container .select2-selection__choice {
+    font-size: 0.52rem !important;
+    padding: 2px 8px !important;
+    line-height: 1.2 !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+  }
+  #generateBetslipBtn:hover {
+    background: linear-gradient(90deg,#38f9d7 0%,#43e97b 100%);
+    box-shadow: 0 4px 16px rgba(67,233,123,0.18);
+  }
+  .betslip-ticket {
+    border-left: 6px solid #43e97b;
+    border-right: 6px solid #38f9d7;
+    background: #f8fff8;
+  }
+  .betslip-header {
+    border-bottom: 1px dashed #43e97b;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .betslip-match {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0f7ef;
+    font-size: 1.02rem;
+  }
+  .betslip-match:last-child {
+    border-bottom: none;
+  }
+  .betslip-odds {
+    font-weight: bold;
+    color: #43e97b;
+  }
+  .betslip-market {
+    color: #38b6ff;
+    font-weight: 500;
+  }
+  .betslip-outcome {
+    color: #ff9800;
+    font-weight: 500;
+  }
+  .betslip-footer {
+    border-top: 1px dashed #43e97b;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    font-size: 1.05rem;
+    text-align: right;
+  }
+</style>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'user/base.html' %}
+{% block title %}Betslip History{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-4">
+    <h2 class="mb-4">Betslip History</h2>
+    {% if betslips %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for betslip in betslips %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ betslip.created_at.strftime('%Y-%m-%d %H:%M') if betslip.created_at else '' }}</td>
+                    <td>{{ betslip.status|capitalize }}</td>
+                    <td>
+                        <a href="{{ url_for('user.view_betslip', token=betslip.token) }}" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No betslips found.</div>
+    {% endif %}
+</div>
+{% endblock %}

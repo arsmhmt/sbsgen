@@ -1,0 +1,30 @@
+{% extends "user/base.html" %}
+
+{% block dashboard_content %}
+  <div class="card mt-4">
+    <div class="card-body">
+      <h4 class="card-title text-success mb-3">Your Generated Betslip</h4>
+      {% if slip and slip.matches %}
+        <ul class="list-group mb-3">
+          {% set total_odds = 1 %}
+          {% for match in slip.matches %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ match.home_team }} vs {{ match.away_team }}
+              <span class="badge bg-success">Odds: {{ match.home_odds }} / {{ match.draw_odds }} / {{ match.away_odds }}</span>
+            </li>
+            {% if match.home_odds %}
+              {% set total_odds = total_odds * match.home_odds|float %}
+            {% endif %}
+          {% endfor %}
+        </ul>
+        <p class="text-info">Total Odds: <strong>{{ total_odds|round(2) }}</strong></p>
+        {% if win_probability is not none %}
+          <p class="text-success mt-2">🎯 Smart AI Win Chance: <strong>{{ win_probability }}%</strong></p>
+        {% endif %}
+      {% else %}
+        <p>No betslip generated.</p>
+      {% endif %}
+      <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-success mt-3">Back to Dashboard</a>
+    </div>
+  </div>
+{% endblock %}

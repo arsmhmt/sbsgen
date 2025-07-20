@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if ad else 'New' }} Ad{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:600px">
+  <h2>{{ 'Edit' if ad else 'New' }} Ad</h2>
+  <form method="post">
+    {% for field,label in [
+         ('slot_type','Slot Type'),
+         ('image_url','Image URL'),
+         ('link_url','Link URL'),
+         ('display_order','Display Order')
+       ] %}
+    <div class="mb-3">
+      <label class="form-label">{{ label }}</label>
+      <input class="form-control" name="{{ field }}" value="{{ getattr(ad,field,'') }}">
+    </div>
+    {% endfor %}
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="is_active" id="is_active"
+             {% if ad and ad.is_active %}checked{% endif %}>
+      <label class="form-check-label" for="is_active">Active</label>
+    </div>
+    <button class="btn btn-primary">Save</button>
+    <a href="{{ url_for('admin_ads.list_ads') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

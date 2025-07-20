@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}CSRF Error - Smart Bet Slip{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Security Error
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-danger">CSRF Token Expired</h5>
+                    <p class="card-text">
+                        The security token for this form has expired. This usually happens when:
+                    </p>
+                    <ul>
+                        <li>The page was open for too long before submitting</li>
+                        <li>You have multiple tabs open with the same form</li>
+                        <li>Your browser's cookies are disabled</li>
+                    </ul>
+                    <p class="card-text">
+                        Please go back, refresh the page, and try again.
+                    </p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary">
+                            <i class="bi bi-house-door-fill me-2"></i>Return to Dashboard
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary ms-2">
+                            <i class="bi bi-arrow-left me-2"></i>Go Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

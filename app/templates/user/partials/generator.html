@@ -1,0 +1,79 @@
+{# user/partials/generator.html #}
+<div class="card shadow-sm border-0 rounded-3 mb-4">
+  <div class="card-header bg-white border-0 py-3">
+    <h5 class="mb-0 fw-bold">
+      <i class="bi bi-lightning-charge-fill text-success me-2"></i>
+      Smart Betslip Generator
+    </h5>
+  </div>
+  <div class="card-body">
+    <form id="betslipForm" method="POST" action="{{ url_for('user.home') }}">
+      <div class="row g-4">
+        <!-- Sports -->
+        <div class="col-md-4">
+          <label class="form-label">Sports</label>
+          <input type="text" class="form-control mb-2" id="sportSearch" placeholder="Search sports..." onkeyup="filterSports()">
+          <div class="border rounded bg-white" style="max-height: 260px; overflow-y: auto;">
+            <div id="sportsCheckboxes" class="p-2 small text-muted">Loading sports...</div>
+          </div>
+        </div>
+
+        <!-- Leagues -->
+        <div class="col-md-4">
+          <label class="form-label">Leagues</label>
+          <input type="text" class="form-control mb-2" id="leagueSearch" placeholder="Search leagues...">
+          <div class="border rounded bg-white" style="max-height: 260px; overflow-y: auto;">
+            <div id="leaguesContainer" class="p-2 small text-muted">Select sports first</div>
+          </div>
+        </div>
+
+        <!-- Markets -->
+        <div class="col-md-4">
+          <label class="form-label">Markets</label>
+          <div id="marketsCheckboxes" class="form-control bg-light" style="min-height: 260px; overflow-y: auto;">
+            <div class="small text-muted">Select leagues first</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <!-- Filters and Generate -->
+      <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label">Min Odds</label>
+          <input type="number" step="0.01" min="1.01" id="minOddInput" class="form-control" value="1.50">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Max Odds</label>
+          <input type="number" step="0.01" min="1.01" id="maxOddInput" class="form-control" value="2.50">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label"># Matches</label>
+          <input type="number" min="1" max="20" id="matchCountInput" class="form-control" value="5">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Total Odds</label>
+          <div id="totalOdds" class="form-control bg-light dashboard-oddsbox">--</div>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Win %</label>
+          <div id="winProb" class="form-control bg-light dashboard-oddsbox">--</div>
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary w-100" id="generateBetslipBtn">
+            <i class="bi bi-robot me-1"></i>Generate
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Betslip Output -->
+    <div class="mt-4">
+      <h6 class="fw-semibold">Generated Betslip</h6>
+      <div class="p-3 border bg-white rounded" id="betslipPreview">
+        <div class="text-muted text-center small">Your betslip will appear here after generation.</div>
+      </div>
+    </div>
+  </div>
+</div>

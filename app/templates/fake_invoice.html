@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fake Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .invoice-box {
+            border: 1px solid #eee;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .info {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <h1>Fake Payment Page</h1>
+        
+        <div class="info">
+            <p><strong>Betslip Token:</strong> {{ slip.token }}</p>
+            <p><strong>Amount to Pay:</strong> {{ "%.2f"|format(slip.amount) }} {{ slip.coin }}</p>
+            <p><strong>Status:</strong> <span style="color: #e67e22;">Pending</span></p>
+        </div>
+
+        <p>This is a test payment page. Click the button below to simulate a successful payment.</p>
+
+        <form method="post">
+            <button type="submit" class="btn">
+                Simulate Successful Payment
+            </button>
+        </form>
+        
+        <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
+            <em>Note: This is a test page. No real payment will be processed.</em>
+        </p>
+    </div>
+</body>
+</html>

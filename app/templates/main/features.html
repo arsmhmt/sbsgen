@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Features - Smart Bet Slip{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 fw-bold mb-4">Smart Features</h1>
+            <p class="lead text-muted mb-5">Experience the power of AI in betting</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- AI-Powered Predictions -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-robot text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 mb-3">AI-Powered Predictions</h3>
+                    <p class="text-muted">Advanced AI algorithms analyze thousands of data points to find the best betting opportunities.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Pro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Sport Coverage -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-sports text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Multi-Sport Coverage</h3>
+                    <p class="text-muted">Get insights for soccer, basketball, tennis, and more major sports.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary">Free</span>
+                        <span class="badge bg-success">Pro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Analytics -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-graph-up text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Advanced Analytics</h3>
+                    <p class="text-muted">Detailed performance tracking and statistical analysis to optimize your betting strategy.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Pro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Support -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-chat-right-quote text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Priority Support</h3>
+                    <p class="text-muted">Get faster responses and dedicated assistance from our expert team.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Pro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unlimited Access -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-4">
+                        <i class="bi bi-infinity text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Unlimited Access</h3>
+                    <p class="text-muted">Generate unlimited betslips with up to 100 matches per slip.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Pro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <a href="{{ url_for('main.pricing') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-star me-2"></i>Get Started with Pro
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

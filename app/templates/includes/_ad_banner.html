@@ -1,0 +1,11 @@
+{% if ads %}
+  {% for ad in ads %}
+    {% if ad.location == location and ad.is_active %}
+      <div class="ad-banner {{ 'mb-4' if location != 'footer' else 'mt-4' }}">
+        <a href="{{ ad.url }}" target="_blank" rel="noopener noreferrer">
+          <img src="{{ ad.image_url }}" alt="{{ ad.title }}" class="img-fluid rounded shadow">
+        </a>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}

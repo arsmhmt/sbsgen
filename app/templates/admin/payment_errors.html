@@ -1,0 +1,15 @@
+{% extends 'admin/dashboard.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Payment Error Logs</h2>
+  {% if error_logs %}
+  <ul class="list-group">
+    {% for error in error_logs %}
+    <li class="list-group-item">{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="alert alert-info">No payment errors found.</div>
+  {% endif %}
+</div>
+{% endblock %}

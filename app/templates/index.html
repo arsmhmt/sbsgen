@@ -1,0 +1,148 @@
+
+{% extends "base.html" %}
+
+{% block title %}AI Betslip Generator - Smarter, Modern Betting{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center w-100" style="background: linear-gradient(rgba(35,39,42,0.85), rgba(39,174,96,0.85)), url('/static/img/sports-bg.jpg') center/cover no-repeat; min-height: 520px; margin-top: 0;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-3 fw-bold mb-3" style="color: #fff; text-shadow: 0 2px 8px rgba(35,39,42,0.25);">
+                    Smarter Bets, <span style="color: #27ae60;">Bigger Wins</span>
+                </h1>
+                <p class="lead mb-4" style="color: #e0e0e0;">
+                    Instantly generate optimized betslips with AI. Analyze odds, maximize value, and outsmart the bookies—no experience needed.
+                </p>
+                <div class="mb-4">
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg rounded-pill px-5 me-3">Get Started Free</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg rounded-pill px-5">Login</a>
+                </div>
+                <div class="d-flex gap-4 mt-4">
+                    <div>
+                        <div class="h3 mb-0" style="color: #27ae60;">95%</div>
+                        <div class="small text-white-50">Accuracy Rate</div>
+                    </div>
+                    <div>
+                        <div class="h3 mb-0" style="color: #27ae60;">10K+</div>
+                        <div class="small text-white-50">Active Users</div>
+                    </div>
+                    <div>
+                        <div class="h3 mb-0" style="color: #27ae60;">24/7</div>
+                        <div class="small text-white-50">Support</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <img src="{{ url_for('static', filename='images/hero-dashboard.png') }}" alt="AI Betslip Dashboard" class="img-fluid rounded-4 shadow-lg" style="max-width: 90%;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+                <p class="lead text-muted">Generate winning betslips in just 3 simple steps</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                            <i class="bi bi-trophy-fill text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title">1. Choose Sport & Market</h5>
+                        <p class="card-text text-muted">Select your favorite sport and betting market. Football, basketball, tennis, and more.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-dark bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                            <i class="bi bi-cpu text-dark" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title">2. Let AI Analyze</h5>
+                        <p class="card-text text-muted">Our AI crunches the numbers, analyzes stats, and finds the best value bets for you.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                            <i class="bi bi-lightning-charge text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title">3. Get Your Betslip</h5>
+                        <p class="card-text text-muted">Receive a ready-to-use, optimized betslip. Place your bet and enjoy the game!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Proof Section -->
+<section class="py-5" style="background: #23272a; color: #fff;">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-6 fw-bold mb-3">Trusted by Smart Bettors Worldwide</h2>
+                <p class="lead text-white-50">Join a growing community of winners who use AI to beat the odds.</p>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="p-4 bg-dark rounded-3 shadow-sm">
+                    <i class="bi bi-graph-up-arrow display-5 text-success mb-2"></i>
+                    <h5 class="fw-bold">+30% ROI</h5>
+                    <p class="text-white-50 small">Average user return on investment</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4 bg-dark rounded-3 shadow-sm">
+                    <i class="bi bi-people-fill display-5 text-success mb-2"></i>
+                    <h5 class="fw-bold">10,000+</h5>
+                    <p class="text-white-50 small">Active users monthly</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4 bg-dark rounded-3 shadow-sm">
+                    <i class="bi bi-trophy display-5 text-warning mb-2"></i>
+                    <h5 class="fw-bold">#1 AI Betslip Tool</h5>
+                    <p class="text-white-50 small">Top rated by bettors</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4 bg-dark rounded-3 shadow-sm">
+                    <i class="bi bi-shield-check display-5 text-info mb-2"></i>
+                    <h5 class="fw-bold">Secure & Private</h5>
+                    <p class="text-white-50 small">Your data is always protected</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5" style="background: linear-gradient(135deg, #27ae60 0%, #23272a 100%); color: #fff;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to generate your first smart betslip?</h2>
+                <p class="lead mb-5">Sign up now and get free credits to try our AI-powered betslip generator.</p>
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                    <i class="bi bi-robot me-2"></i> Start Free
+                </a>
+                <p class="mt-3 text-white-50 small">No credit card required • Cancel anytime</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

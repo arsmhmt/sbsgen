@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+.env*
+*.sqlite3
+*.db
+*.log
+*.pot
+*.pyc
+*.pkl
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Static/Build
+/static/img/
+/static/images/
+/static/files/
+
+# Other
+*.bak
+*.swp
+*.tmp
+
+# Secrets
+secrets.json
+*.key
+*.pem
+
+# Ignore virtual environments
+venv/
+.env
+.env/
+
+# Ignore test coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+
+# Ignore dist
+build/
+dist/
+*.egg-info/

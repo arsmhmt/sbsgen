@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Smart Bet Slip{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold mb-3">Admin Login</h1>
+            <p class="lead text-muted">Sign in to access the admin dashboard</p>
+        </div>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="text-center mb-3">Admin Login</h5>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login') }}" class="mb-4">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-medium">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="material-icons">person</i>
+                            </span>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   placeholder="Enter your username" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-medium">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="material-icons">lock</i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Enter your password" required>
+                        </div>
+
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-medium">
+                        <i class="material-icons align-middle me-1">login</i>
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('auth.forgot_password') }}" class="small">Forgot password?</a>
+                    <p class="small text-muted mb-0">
+                        By signing in, you agree to our 
+                        <a href="{{ url_for('main.terms') }}" class="text-decoration-none">Terms of Service</a> and 
+                        <a href="{{ url_for('main.privacy') }}" class="text-decoration-none">Privacy Policy</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <p class="small text-muted">
+                By continuing, you agree to our 
+                <a href="{{ url_for('main.terms') }}" class="text-decoration-none">Terms of Service</a> and 
+                <a href="{{ url_for('main.privacy') }}" class="text-decoration-none">Privacy Policy</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-focus the username field on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').focus();
+    });
+    
+    // Toggle password visibility
+    const togglePassword = document.querySelector('.toggle-password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.querySelector('i').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    }
+</script>
+{% endblock %}
