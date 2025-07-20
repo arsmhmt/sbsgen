@@ -1,3 +1,7 @@
+# Placeholder for fetch_leagues_by_sport to fix ImportError
+def fetch_leagues_by_sport(sport_id):
+    # TODO: Implement actual logic
+    return []
 import os
 import httpx
 from typing import List, Dict, Optional

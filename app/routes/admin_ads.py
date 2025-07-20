@@ -1,62 +1,87 @@
-# app/routes/admin_ads.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
-from app import db
+
+from fastapi import APIRouter, Depends, Request, Form, HTTPException, status
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+from app.utils.auth_utils import get_current_user, get_db
 from app.models import Ad
 
-admin_ads = Blueprint("admin_ads", __name__, url_prefix="/admin/ads")
+router = APIRouter(prefix="/admin/ads", tags=["admin_ads"])
+templates = Jinja2Templates(directory="templates")
 
-def admin_only(func):
-    @login_required
-    def wrapper(*args, **kwargs):
-        if not getattr(current_user, "is_admin", False):
-            flash("Access denied.", "danger")
-            return redirect(url_for("user.dashboard"))
-        return func(*args, **kwargs)
-    wrapper.__name__ = func.__name__
-    return wrapper
+def admin_required(user=Depends(get_current_user)):
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    return user
 
-@admin_ads.route("/")
-@admin_only
-def list_ads():
-    ads = Ad.query.order_by(Ad.slot_type, Ad.display_order).all()
-    return render_template("admin/ads.html", ads=ads)
+# List ads
+@router.get("/")
+def list_ads(request: Request, db: Session = Depends(get_db), user=Depends(admin_required)):
+    ads = db.query(Ad).order_by(Ad.slot_type, Ad.display_order).all()
+    return templates.TemplateResponse("admin/ads.html", {"request": request, "ads": ads})
 
-@admin_ads.route("/create", methods=["GET","POST"])
-@admin_only
-def create_ad():
-    if request.method=="POST":
-        ad = Ad(
-            slot_type=request.form["slot_type"],
-            image_url=request.form["image_url"],
-            link_url=request.form["link_url"],
-            display_order=int(request.form["display_order"]),
-            is_active = bool(request.form.get("is_active"))
-        )
-        db.session.add(ad); db.session.commit()
-        flash("Ad created.", "success")
-        return redirect(url_for("admin_ads.list_ads"))
-    return render_template("admin/ad_form.html", ad=None)
+# Create ad (GET: form, POST: submit)
+@router.get("/create")
+def create_ad_form(request: Request, user=Depends(admin_required)):
+    return templates.TemplateResponse("admin/ad_form.html", {"request": request, "ad": None})
 
-@admin_ads.route("/<int:ad_id>/edit", methods=["GET","POST"])
-@admin_only
-def edit_ad(ad_id):
-    ad = Ad.query.get_or_404(ad_id)
-    if request.method=="POST":
-        ad.slot_type = request.form["slot_type"]
-        ad.image_url = request.form["image_url"]
-        ad.link_url  = request.form["link_url"]
-        ad.display_order = int(request.form["display_order"])
-        ad.is_active = bool(request.form.get("is_active"))
-        db.session.commit()
-        flash("Ad updated.", "success")
-        return redirect(url_for("admin_ads.list_ads"))
-    return render_template("admin/ad_form.html", ad=ad)
+@router.post("/create")
+def create_ad(
+    request: Request,
+    slot_type: str = Form(...),
+    image_url: str = Form(...),
+    link_url: str = Form(...),
+    display_order: int = Form(...),
+    is_active: bool = Form(False),
+    db: Session = Depends(get_db),
+    user=Depends(admin_required)
+):
+    ad = Ad(
+        slot_type=slot_type,
+        image_url=image_url,
+        link_url=link_url,
+        display_order=display_order,
+        is_active=is_active
+    )
+    db.add(ad); db.commit()
+    return RedirectResponse("/admin/ads/", status_code=status.HTTP_303_SEE_OTHER)
 
-@admin_ads.route("/<int:ad_id>/delete", methods=["POST"])
-@admin_only
-def delete_ad(ad_id):
-    ad = Ad.query.get_or_404(ad_id)
-    db.session.delete(ad); db.session.commit()
-    flash("Ad deleted.", "info")
-    return redirect(url_for("admin_ads.list_ads"))
+# Edit ad
+@router.get("/{ad_id}/edit")
+def edit_ad_form(ad_id: int, request: Request, db: Session = Depends(get_db), user=Depends(admin_required)):
+    ad = db.query(Ad).filter_by(id=ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    return templates.TemplateResponse("admin/ad_form.html", {"request": request, "ad": ad})
+
+@router.post("/{ad_id}/edit")
+def edit_ad(
+    ad_id: int,
+    request: Request,
+    slot_type: str = Form(...),
+    image_url: str = Form(...),
+    link_url: str = Form(...),
+    display_order: int = Form(...),
+    is_active: bool = Form(False),
+    db: Session = Depends(get_db),
+    user=Depends(admin_required)
+):
+    ad = db.query(Ad).filter_by(id=ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    ad.slot_type = slot_type
+    ad.image_url = image_url
+    ad.link_url = link_url
+    ad.display_order = display_order
+    ad.is_active = is_active
+    db.commit()
+    return RedirectResponse("/admin/ads/", status_code=status.HTTP_303_SEE_OTHER)
+
+# Delete ad
+@router.post("/{ad_id}/delete")
+def delete_ad(ad_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
+    ad = db.query(Ad).filter_by(id=ad_id).first()
+    if not ad:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    db.delete(ad); db.commit()
+    return RedirectResponse("/admin/ads/", status_code=status.HTTP_303_SEE_OTHER)

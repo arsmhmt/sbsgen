@@ -7,7 +7,7 @@ from app.models import User
 from datetime import datetime
 from ai.predictor import generate_betslip as ai_generate_betslip
 from app.utils.usage_guard import check_credits
-from app.routes.api import get_current_user, get_db
+from app.utils.auth_utils import get_current_user, get_db
 
 router = APIRouter()
 

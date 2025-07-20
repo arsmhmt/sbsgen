@@ -43,19 +43,8 @@ def create_app():
     login_manager.login_view = 'auth.login'
     CSRFProtect(app)
 
-    # Import and register Blueprints
-    from app.routes.auth import auth_bp, google_bp
-    from app.routes.user import user_bp
-    from app.routes.betslip_api import betslip_api
-    from app.routes.admin import admin_bp
-    from app.routes.main import main_bp
-
-    app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(google_bp, url_prefix="/login")
-    app.register_blueprint(user_bp, url_prefix="/user")
-    app.register_blueprint(betslip_api)
-    app.register_blueprint(admin_bp)
+    # FastAPI migration: Remove Flask Blueprint imports and registration
+    # TODO: Replace with FastAPI router includes in main.py
 
     # Create DB tables (for development) - Commented out as migrations will handle this
     # with app.app_context():

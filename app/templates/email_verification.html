@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <h2>Email Verification</h2>
+    <div id="verify-section">
+        <form id="request-form" class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" required>
+            <button type="submit" class="btn btn-primary mt-2">Send Verification Email</button>
+        </form>
+        <button id="resend-btn" class="btn btn-outline-secondary mb-3">Resend Verification Email</button>
+        <div id="request-message" class="alert d-none"></div>
+    </div>
+    <div id="confirm-section" class="mt-5">
+        <h4>Confirm Verification</h4>
+        <button id="confirm-btn" class="btn btn-success">Confirm Email</button>
+        <div id="confirm-message" class="alert d-none mt-2"></div>
+    </div>
+</div>
+<script>
+// Request verification email
+const requestForm = document.getElementById('request-form');
+const requestMsg = document.getElementById('request-message');
+const resendBtn = document.getElementById('resend-btn');
+
+async function sendVerificationEmail(email) {
+    requestMsg.classList.add('d-none');
+    try {
+        const res = await fetch('/api/mail/send-verification-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        requestMsg.textContent = data.message || 'Email sent!';
+        requestMsg.className = 'alert alert-success';
+        requestMsg.classList.remove('d-none');
+    } catch (err) {
+        requestMsg.textContent = 'Error sending email.';
+        requestMsg.className = 'alert alert-danger';
+        requestMsg.classList.remove('d-none');
+    }
+}
+
+requestForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    await sendVerificationEmail(email);
+});
+
+resendBtn.addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    if (!email) {
+        requestMsg.textContent = 'Please enter your email address above.';
+        requestMsg.className = 'alert alert-warning';
+        requestMsg.classList.remove('d-none');
+        return;
+    }
+    await sendVerificationEmail(email);
+});
+
+// Confirm verification (simulate clicking the link)
+const confirmBtn = document.getElementById('confirm-btn');
+const confirmMsg = document.getElementById('confirm-message');
+confirmBtn.addEventListener('click', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    confirmMsg.classList.add('d-none');
+    if (!token) {
+        confirmMsg.textContent = 'No token found in URL.';
+        confirmMsg.className = 'alert alert-warning';
+        confirmMsg.classList.remove('d-none');
+        return;
+    }
+    try {
+        const res = await fetch(`/api/verify?token=${token}`);
+        if (!res.ok) {
+            const data = await res.json();
+            confirmMsg.textContent = data.detail || 'Verification failed.';
+            confirmMsg.className = 'alert alert-danger';
+            confirmMsg.classList.remove('d-none');
+            return;
+        }
+        const data = await res.json();
+        confirmMsg.textContent = data.message || 'Verification complete!';
+        confirmMsg.className = 'alert alert-success';
+        confirmMsg.classList.remove('d-none');
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = '/dashboard'; // Change to your dashboard or login page
+        }, 2000);
+    } catch (err) {
+        confirmMsg.textContent = 'Verification failed.';
+        confirmMsg.className = 'alert alert-danger';
+        confirmMsg.classList.remove('d-none');
+    }
+});
+</script>
+</body>
+</html>

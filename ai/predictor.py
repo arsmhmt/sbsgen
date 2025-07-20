@@ -1,10 +1,17 @@
-import pickle
+# Placeholder for generate_betslip to fix ImportError
+def generate_betslip(betslip_input):
+    # TODO: Implement actual logic
+    return {
+        "matches": [],
+        "total_odds": 0.0,
+        "win_probability": 0.0
+    }
+import joblib
 import numpy as np
 from typing import List
 
 # Load model on import
-with open("ai/smartslip_model.pkl", "rb") as f:
-    model = pickle.load(f)
+model = joblib.load("ai/smartslip_model.pkl")
 
 def predict_win_probability(odds: List[float]) -> float:
     # Features: average odds, total odds, match count

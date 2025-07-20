@@ -13,6 +13,10 @@ class SignupForm(FlaskForm):
         "Username",
         validators=[DataRequired(), Length(min=3, max=50)]
     )
+    role = StringField(
+        "Role",
+        default="user"
+    )
     email = StringField(
         "Email",
         validators=[DataRequired(), Email(), Length(max=255)]

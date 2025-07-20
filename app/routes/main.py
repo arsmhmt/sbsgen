@@ -1,19 +1,19 @@
-from flask import Blueprint, render_template
+from fastapi import APIRouter
 
-main_bp = Blueprint('main', __name__)
+router = APIRouter()
 
-@main_bp.route('/')
-def index():
-    return render_template('index.html')
+@router.get("/")
+async def index():
+    return {"message": "Welcome to SmartSlip!"}
 
-@main_bp.route('/pricing')
-def pricing():
-    return render_template('pricing.html')
+@router.get("/pricing")
+async def pricing():
+    return {"message": "Pricing page"}
 
-@main_bp.route('/terms')
-def terms():
-    return render_template('terms.html')
+@router.get("/terms")
+async def terms():
+    return {"message": "Terms page"}
 
-@main_bp.route('/privacy')
-def privacy():
-    return render_template('privacy.html')
+@router.get("/privacy")
+async def privacy():
+    return {"message": "Privacy page"}

@@ -5,6 +5,7 @@ __pycache__/
 *.pyd
 *.env
 .env*
+mail.env
 *.sqlite3
 *.db
 *.log
