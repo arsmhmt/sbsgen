@@ -1,100 +1,87 @@
-
 import os
-from fastapi import APIRouter, Depends, Request, status, Form
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from app.models import User
-# from app.forms import SignupForm # FastAPI forms handled differently
-from passlib.hash import bcrypt
-from app.utils.auth_utils import get_db, get_current_user
-
-router = APIRouter(prefix="/auth", tags=["auth"])
-templates = Jinja2Templates(directory="templates")
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask_login import login_user, logout_user, login_required, current_user
+auth_bp = Blueprint("auth", __name__)
 
 # --- Forgot Password Route ---
-@router.get("/forgot_password")
-def forgot_password(request: Request):
-    return templates.TemplateResponse("auth/forgot_password.html", {"request": request})
+@auth_bp.route("/forgot_password")
+def forgot_password():
+    return render_template("auth/forgot_password.html")
 
 # --- Reset Password Route ---
-@router.get("/reset_password")
-def reset_password(request: Request):
-    return templates.TemplateResponse("auth/reset_password.html", {"request": request})
-
-# --- Google OAuth logic should be implemented using FastAPI and a library like Authlib or python-social-auth ---
-# Placeholder for Google OAuth integration
+@auth_bp.route("/reset_password")
+def reset_password():
+    return render_template("auth/reset_password.html")
 
 # --- Signup Route ---
-@router.get("/signup")
-def signup_form(request: Request):
-    return templates.TemplateResponse("auth/signup.html", {"request": request})
-
-@router.post("/signup")
-def signup(
-    request: Request,
-    email: str = Form(...),
-    username: str = Form(...),
-    password: str = Form(...),
-    role: str = Form("user"),
-    db: Session = Depends(get_db)
-):
-    # Replace with actual form validation
-    if db.query(User).filter_by(email=email).first():
-        # Replace with FastAPI flash/message system
-        return RedirectResponse("/auth/signup", status_code=status.HTTP_303_SEE_OTHER)
-    if db.query(User).filter_by(username=username).first():
-        return RedirectResponse("/auth/signup", status_code=status.HTTP_303_SEE_OTHER)
-
-    hashed = bcrypt.hash(password)
-    user = User(email=email, username=username, name=username, password_hash=hashed, email_verified=False)
-    db.add(user)
-    db.commit()
-    # TODO: Send verification email here
-    return RedirectResponse("/auth/login", status_code=status.HTTP_303_SEE_OTHER)
-
-# --- Logout Route ---
-@router.get("/logout")
-def logout(request: Request):
-    # TODO: Implement logout logic for FastAPI
-    return RedirectResponse("/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+@auth_bp.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        email = request.form.get("email")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        role = request.form.get("role", "user")
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered.", "danger")
+            return redirect(url_for("auth.signup"))
+        if User.query.filter_by(username=username).first():
+            flash("Username already taken.", "danger")
+            return redirect(url_for("auth.signup"))
+        hashed = bcrypt.hash(password)
+        user = User(email=email, username=username, name=username, password_hash=hashed, email_verified=False)
+        db.session.add(user)
+        db.session.commit()
+        # TODO: Send verification email here
+        flash("Account created! Please log in.", "success")
+        return redirect(url_for("auth.login"))
+    return render_template("auth/signup.html")
 
 # --- Login Route ---
-@router.get("/login")
-def login_form(request: Request):
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+from app.forms import LoginForm
 
-@router.post("/login")
-def login(
-    request: Request,
-    email: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
-):
-    user = db.query(User).filter_by(email=email).first()
-    if user and bcrypt.verify(password, user.password_hash):
-        # TODO: Implement session logic for FastAPI
-        return RedirectResponse("/user/dashboard", status_code=status.HTTP_303_SEE_OTHER)
-    else:
-        # TODO: Add error message handling
-        return RedirectResponse("/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        user = User.query.filter_by(email=email).first()
+        if user and hasattr(user, 'password_hash') and bcrypt.verify(password, user.password_hash):
+            login_user(user)
+            return redirect(url_for("user.dashboard"))
+        else:
+            flash("Invalid credentials.", "danger")
+            return redirect(url_for("auth.login"))
+    return render_template("auth/login.html", form=form)
+
+# --- Logout Route ---
+@auth_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("Logged out.", "info")
+    return redirect(url_for("auth.login"))
+
 
 # --- Email Verification Route ---
-@router.get("/verify_email/{token}")
-def verify_email(token: str, db: Session = Depends(get_db)):
-    from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer
+from app.models import User
+from app import db
+from passlib.hash import bcrypt
+
+@auth_bp.route("/verify_email/<token>")
+def verify_email(token):
     s = URLSafeTimedSerializer(os.getenv('SECRET_KEY', 'devkey'))
     try:
         email = s.loads(token, max_age=3600)
     except Exception:
-        # TODO: Add error message handling
-        return RedirectResponse("/auth/login", status_code=status.HTTP_303_SEE_OTHER)
-    user = db.query(User).filter_by(email=email).first()
+        flash("Invalid or expired token.", "danger")
+        return redirect(url_for("auth.login"))
+    user = User.query.filter_by(email=email).first()
     if user:
         user.email_verified = True
-        db.commit()
-        # TODO: Add success message handling
+        db.session.commit()
+        flash("Email verified!", "success")
     else:
-        # TODO: Add error message handling
-        pass
-    return RedirectResponse("/auth/login", status_code=status.HTTP_303_SEE_OTHER)
+        flash("User not found.", "danger")
+    return redirect(url_for("auth.login"))

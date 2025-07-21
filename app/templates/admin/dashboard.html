@@ -1,85 +1,115 @@
-{% extends 'admin/base.html' %}
+{% extends "admin/base.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
-
-{% block page_title %}Dashboard{% endblock %}
+{% block title %}Admin Panel – SmartSlip{% endblock %}
 
 {% block content %}
-{# Flash Messages #}
-<div class="container mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+<div class="container-fluid mt-4">
+  <h2 class="mb-4">Welcome, Admin</h2>
+
+  <div class="row g-4">
+    <!-- Users -->
+    <div class="col-md-3">
+      <div class="card text-white bg-success shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-users me-2"></i>Total Users</h5>
+          <h3>{{ stats.total_users }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paid Users -->
+    <div class="col-md-3">
+      <div class="card text-white bg-primary shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-star me-2"></i>Pro Members</h5>
+          <h3>{{ stats.paid_users }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generated Slips -->
+    <div class="col-md-3">
+      <div class="card text-white bg-info shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-ticket-alt me-2"></i>Slips Generated</h5>
+          <h3>{{ stats.total_slips }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue -->
+    <div class="col-md-3">
+      <div class="card text-white bg-warning shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-coins me-2"></i>Revenue (USD)</h5>
+          <h3>${{ stats.revenue }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-4">
+    <!-- Recent Slips -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <strong><i class="fas fa-history me-2"></i>Recent Betslips</strong>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for slip in recent_slips %}
+            <li class="list-group-item d-flex flex-column align-items-start">
+              <div class="d-flex w-100 justify-content-between align-items-center">
+                <span>{{ slip.user_email or 'Anonymous' }} - {{ slip.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <a href="{{ url_for('admin.view_slip', slip_id=slip.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+              </div>
+              <div class="win-probability-box mt-2">
+                <strong>🏆 Win %:</strong>
+                {% if slip.user.is_pro %}
+                  <span class="probability-value" style="color: {% if slip.win_probability > 70 %}green{% elif slip.win_probability > 40 %}orange{% else %}red{% endif %};">
+                    {{ slip.win_probability }}%
+                  </span>
+                  <div class="progress mt-1" style="height: 18px;">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ slip.win_probability }}%; background-color:
+                           {% if slip.win_probability > 70 %}#28a745{% elif slip.win_probability > 40 %}#ffc107{% else %}#dc3545{% endif %};">
+                      {{ slip.win_probability }}%
+                    </div>
+                  </div>
+                {% else %}
+                  <span class="locked-feature">Pro only 🔒</span>
+                  <div class="blurred-bar mt-1" style="background: #eee; color: #888; text-align: center; border-radius: 4px; height: 18px; line-height: 18px;">Pro only</div>
+                {% endif %}
+              </div>
+            </li>
+            {% else %}
+            <li class="list-group-item text-muted">No recent slips</li>
             {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card border-0 bg-primary text-white mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase text-white-50 mb-1">Total Betslips</h6>
-                        <h2 class="mb-0">{{ total_betslips }}</h2>
-                    </div>
-                    <div class="icon-shape bg-white bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-receipt text-white" style="font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
+    <!-- System Logs -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <strong><i class="fas fa-clipboard-list me-2"></i>System Logs</strong>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 bg-success text-white mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase text-white-50 mb-1">Paid Betslips</h6>
-                        <h2 class="mb-0">{{ paid_betslips }}</h2>
-                    </div>
-                    <div class="icon-shape bg-white bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-check-circle text-white" style="font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for log in logs[:8] %}
+            <li class="list-group-item small text-muted">
+              <strong>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</strong> – {{ log.message }}
+            </li>
+            {% else %}
+            <li class="list-group-item text-muted">No logs found</li>
+            {% endfor %}
+          </ul>
         </div>
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 bg-warning text-dark mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-uppercase text-dark-50 mb-1">Unpaid Betslips</h6>
-                        <h2 class="mb-0">{{ unpaid_betslips }}</h2>
-                    </div>
-                    <div class="icon-shape bg-dark bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-clock-history text-dark" style="font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Recent Activity</h5>
-                <a href="{{ url_for('admin.betslips') }}" class="btn btn-sm btn-outline-primary">
-                    View All Betslips
-                </a>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-0">Welcome to the admin dashboard. Here you can manage all betslips and view important statistics about your application.</p>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}

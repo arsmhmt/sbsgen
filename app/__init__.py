@@ -46,8 +46,16 @@ def create_app():
     login_manager.login_view = 'auth.login'
     CSRFProtect(app)
 
-    # FastAPI migration: Remove Flask Blueprint imports and registration
-    # TODO: Replace with FastAPI router includes in main.py
+    # Register Flask blueprints
+    from app.routes.user import user_bp
+    from app.routes.admin import admin_bp
+    from app.routes.main import main_bp
+    from app.routes.auth import auth_bp
+
+    app.register_blueprint(user_bp, url_prefix="/user")
+    app.register_blueprint(admin_bp, url_prefix="/admin120724")
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
 
     # Create DB tables (for development) - Commented out as migrations will handle this
     # with app.app_context():

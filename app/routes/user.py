@@ -1,17 +1,3 @@
-from flask import request
-# Add edit_profile route to allow username customization
-@user_bp.route("/edit_profile", methods=["POST"])
-@login_required
-def edit_profile():
-    username = request.form.get("username")
-    if username and username != current_user.username:
-        if User.query.filter_by(username=username).first():
-            flash("Username already taken.", "danger")
-        else:
-            current_user.username = username
-            db.session.commit()
-            flash("Username updated!", "success")
-    return redirect(url_for("user.account"))
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, current_user
@@ -21,6 +7,8 @@ from passlib.hash import bcrypt
 from app.forms import LoginForm
 
 user_bp = Blueprint("user", __name__)
+
+
 
 # --- User Login Route ---
 @user_bp.route("/login", methods=["GET", "POST"])
@@ -67,11 +55,20 @@ def betslips():
 def referrals():
     return render_template("user/referrals.html", user=current_user)
 
-# Add edit_profile route to match account.html link
+# Add edit_profile route to match account.html link (merged GET/POST)
 @user_bp.route("/edit_profile", methods=["GET", "POST"])
 @login_required
 def edit_profile():
-    # TODO: Implement profile editing logic and form
+    if request.method == "POST":
+        username = request.form.get("username")
+        if username and username != current_user.username:
+            if User.query.filter_by(username=username).first():
+                flash("Username already taken.", "danger")
+            else:
+                current_user.username = username
+                db.session.commit()
+                flash("Username updated!", "success")
+        return redirect(url_for("user.account"))
     return render_template("user/edit_profile.html", user=current_user)
 
 # Add change_password route to match account.html link

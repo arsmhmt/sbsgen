@@ -1,297 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}{% block page_title %}User Dashboard{% endblock %}{% endblock %}
-
-
-{% block extra_css %}
-<style>
-.sidebar-link {
-  color: #e0e6ed !important;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: color 0.15s;
-}
-.sidebar-link.active, .sidebar-link:focus, .sidebar-link:hover {
-  color: #27ae60 !important;
-  background: rgba(39,174,96,0.08);
-}
-/* Make betslip generator placeholder texts more visible */
-.betslip-placeholder-text {
-  color: #27ae60 !important;
-  font-weight: 500;
-}
-</style>
-{% endblock %}
+{% block title %}User Panel | SmartSlip{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container py-4">
   <div class="row">
     <!-- Sidebar -->
-    <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse dashboard-sidebar" id="sidebarMenu" style="background:#23272a; color:#fff; top:56px; position:fixed; left:0; width:250px; z-index:1030; overflow-y:auto; box-shadow:2px 0 16px rgba(35,39,42,0.10); height:calc(100vh - 56px - 105px); min-height:0;">
-      <div class="position-sticky pt-3" style="top:0; height:100%; display:flex; flex-direction:column;">
-        <!-- User Info Card at the Top of Sidebar -->
-        <div class="dashboard-card mb-3 p-2 user-sidebar-card text-center" style="background: linear-gradient(90deg, #23272a 80%, #27ae60 120%); border: 2px solid #27ae60; font-size:0.96rem;">
-            <div class="d-flex flex-column align-items-center justify-content-center">
-                <div class="rounded-circle bg-success bg-opacity-25 d-flex align-items-center justify-content-center mb-2" style="width: 38px; height: 38px;">
-                    <i class="bi bi-person-circle text-success" style="font-size: 1.4rem;"></i>
-                </div>
-                <div class="text-success small fw-semibold mb-1">{{ 'Pro User' if current_user.is_pro else 'Free User' }}</div>
-                <div class="small text-light mb-2">Credits: <span class="fw-bold text-success">{{ current_user.free_slip_credits }}</span></div>
-                {% if not current_user.is_pro %}
-                    <!-- Upgrade to Pro button removed: no 'main.pricing' endpoint exists -->
-                {% endif %}
-            </div>
-        </div>
-        <ul class="nav flex-column mb-4">
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}" href="{{ url_for('user.dashboard') }}">
-              <i class="bi bi-house-door"></i> Dashboard
+    <div class="col-md-3 mb-4">
+      <div class="card shadow-sm rounded-3">
+        <div class="card-body">
+          <h5 class="mb-3">👤 {{ user.name or user.email }}</h5>
+          <div class="list-group">
+            <a href="{{ url_for('user.dashboard') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+              🏠 Dashboard
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'user.account' %}active{% endif %}" href="{{ url_for('user.account') }}">
-              <i class="bi bi-person"></i> Account
+            <a href="{{ url_for('user.account') }}" class="list-group-item list-group-item-action">
+              ⚙️ Account Settings
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'user.betslips' %}active{% endif %}" href="{{ url_for('user.betslips') }}">
-              <i class="bi bi-clock-history"></i> Betslip History
+            <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action text-danger">
+              🚪 Logout
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'user.referrals' %}active{% endif %}" href="{{ url_for('user.referrals') }}">
-              <i class="bi bi-people"></i> Referrals
-            </a>
-          </li>
-          {% if current_user.is_authenticated and current_user.is_admin %}
-          <li class="nav-item mt-4">
-            <hr style="border-color:#27ae60; opacity:0.5; margin:0.5rem 0;">
-            <div class="dashboard-card p-2 mb-2" style="background:linear-gradient(90deg,#23272a 80%,#27ae60 120%); border:1.5px solid #27ae60; color:#fff; display:flex; align-items:center; gap:0.5em;">
-              <i class="bi bi-shield-lock-fill text-success" style="font-size:1.2rem;"></i>
-              <span class="fw-bold small">Admin Panel</span>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">
-              <i class="bi bi-speedometer2"></i> Admin Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'admin.users' %}active{% endif %}" href="{{ url_for('admin.users') }}">
-              <i class="bi bi-people"></i> Users List
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'admin.payments' %}active{% endif %}" href="{{ url_for('admin.payments') }}">
-              <i class="bi bi-credit-card"></i> Payments
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'admin.payment_errors' %}active{% endif %}" href="{{ url_for('admin.payment_errors') }}">
-              <i class="bi bi-exclamation-triangle"></i> Payment Error Logs
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link sidebar-link {% if request.endpoint == 'admin.ads' %}active{% endif %}" href="{{ url_for('admin.ads') }}">
-              <i class="bi bi-badge-ad"></i> Ads Management
-            </a>
-          </li>
-          {% endif %}
-          <li class="nav-item mt-4">
-            <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">
-              <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-          </li>
-        </ul>
-        <!-- Referral/Free Credits (for non-pro) styled like Plan/Status Card -->
-        {% if not current_user.is_pro %}
-        <div class="dashboard-card mb-3 p-3 text-center" style="background: linear-gradient(120deg, #23272a 80%, #27ae60 120%); color:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(39,174,96,0.10);">
-          <div class="fw-bold text-success mb-1" style="font-size:1.08rem;">{{ current_user.free_slip_credits }} Free Credits</div>
-          <div class="small text-light mb-2">Refer friends and earn more credits!</div>
-          <div class="input-group input-group-sm mb-2">
-            <input type="text" class="form-control border-0 referral-link-input" id="sidebarReferralLink" value="{{ url_for('user.referrals', _external=True) }}?ref={{ current_user.referral_code }}" readonly>
-            <button class="btn btn-outline-success" type="button" id="sidebarCopyReferralBtn" title="Copy link"><i class="bi bi-clipboard"></i></button>
           </div>
-          <button class="btn btn-success btn-sm px-2 w-100 mb-2" type="button" id="sidebarShareReferralBtn"><i class="bi bi-share me-1"></i>Share</button>
-          <div class="small text-light mt-1">Share your link and get <span class="fw-bold text-success">+3 credits</span> for every signup!</div>
+          <a href="{{ url_for('main.pricing') }}" class="btn btn-gradient w-100 mt-3 fw-bold">
+            🚀 Upgrade to Pro
+          </a>
         </div>
-        {% endif %}
-        <div style="flex:1 1 auto;"></div>
       </div>
-    </nav>
-    <!-- Main content -->
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    </div>
 
-    {% block dashboard_content %}{% endblock %}
-    </main>
+    <!-- Main Content -->
+    <div class="col-md-9">
+      {% block user_content %}{% endblock %}
+    </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Sidebar referral link copy/share
-document.addEventListener('DOMContentLoaded', function() {
-    var copyBtn = document.getElementById('sidebarCopyReferralBtn');
-    var shareBtn = document.getElementById('sidebarShareReferralBtn');
-    var referralInput = document.getElementById('sidebarReferralLink');
-    if (copyBtn && referralInput) {
-        copyBtn.addEventListener('click', function() {
-            referralInput.select();
-            referralInput.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            copyBtn.innerHTML = '<i class="bi bi-clipboard-check"></i> Copied!';
-            setTimeout(function() { copyBtn.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 1200);
-        });
-    }
-    if (shareBtn && referralInput) {
-        shareBtn.addEventListener('click', function() {
-            const link = referralInput.value;
-            if (navigator.share) {
-                navigator.share({ title: 'Join Smart Bet Slip!', text: 'Sign up and get free credits:', url: link });
-            } else {
-                referralInput.select();
-                referralInput.setSelectionRange(0, 99999);
-                document.execCommand('copy');
-                shareBtn.innerHTML = 'Copied!';
-                setTimeout(function() { shareBtn.innerHTML = '<i class="bi bi-share me-1"></i>Share'; }, 1200);
-            }
-        });
-    }
-
-    // --- Dynamic Leagues Checkboxes Logic ---
-    // All sports, leagues, and markets will be fetched dynamically from the backend (Odds API + Pinnacle)
-
-    // --- Dynamic Sports/Leagues/Markets Fetching ---
-    // Elements
-    const sportsDiv = document.getElementById('sportsCheckboxes');
-    const leaguesDiv = document.getElementById('leaguesCheckboxes');
-    // Optionally add: const marketsDiv = document.getElementById('marketsCheckboxes');
-    const marketsDiv = document.getElementById('marketsCheckboxes');
-
-    // Fetch and render sports checkboxes
-    function fetchSports() {
-        fetch('/api/sports')
-            .then(res => res.json())
-            .then(data => {
-                if (!Array.isArray(data)) return;
-                sportsDiv.innerHTML = data.map(sport =>
-                    `<div class="form-check form-check-inline mb-1">
-                        <input class="form-check-input" type="checkbox" name="sports" value="${sport.key}" id="sport_${sport.key}">
-                        <label class="form-check-label" for="sport_${sport.key}">${sport.title}</label>
-                    </div>`
-                ).join('');
-                attachSportListeners();
-            });
-    }
-
-    // Listen for changes on sports checkboxes
-    function attachSportListeners() {
-        const sportsCheckboxes = document.querySelectorAll('input[name="sports"]');
-        sportsCheckboxes.forEach(cb => {
-            cb.addEventListener('change', updateLeagues);
-        });
-    }
-
-    // Fetch and render leagues for selected sports
-    function updateLeagues() {
-        const sportsCheckboxes = document.querySelectorAll('input[name="sports"]');
-        const checkedSports = Array.from(sportsCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
-        if (checkedSports.length === 0) {
-            leaguesDiv.innerHTML = '<div class="text-muted small">Select a sport to see leagues</div>';
-            if (marketsDiv) marketsDiv.innerHTML = '<div class="text-muted small">Select a league to see markets</div>';
-            return;
-        }
-        // Fetch leagues for all checked sports (merge results)
-        Promise.all(checkedSports.map(sportKey =>
-            fetch(`/api/leagues?sport=${encodeURIComponent(sportKey)}`)
-                .then(res => res.json())
-                .catch(() => [])
-        )).then(results => {
-            // Flatten and deduplicate by key
-            let leagues = results.flat().filter(Boolean);
-            const seen = new Set();
-            leagues = leagues.filter(lg => {
-                if (!lg.key || seen.has(lg.key)) return false;
-                seen.add(lg.key);
-                return true;
-            });
-            if (leagues.length === 0) {
-                leaguesDiv.innerHTML = '<div class="text-muted small">No leagues found for selected sport(s)</div>';
-                if (marketsDiv) marketsDiv.innerHTML = '<div class="text-muted small">Select a league to see markets</div>';
-            } else {
-                leaguesDiv.innerHTML = leagues.map(lg =>
-                    `<div class="form-check form-check-inline mb-1">
-                        <input class="form-check-input" type="checkbox" name="leagues" value="${lg.key}" data-sport="${lg.sport_key || checkedSports[0]}" id="league_${lg.key}">
-                        <label class="form-check-label" for="league_${lg.key}">${lg.title || lg.name}</label>
-                    </div>`
-                ).join('');
-                attachLeagueListeners();
-            }
-        });
-    }
-
-    // Listen for changes on leagues checkboxes
-    function attachLeagueListeners() {
-        const leagueCheckboxes = document.querySelectorAll('input[name="leagues"]');
-        leagueCheckboxes.forEach(cb => {
-            cb.addEventListener('change', updateMarkets);
-        });
-    }
-
-    // Fetch and render markets for selected leagues
-    function updateMarkets() {
-        const leagueCheckboxes = document.querySelectorAll('input[name="leagues"]');
-        const checkedLeagues = Array.from(leagueCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => ({ key: cb.value, sport: cb.getAttribute('data-sport') }));
-        if (checkedLeagues.length === 0) {
-            if (marketsDiv) marketsDiv.innerHTML = '<div class="text-muted small">Select a league to see markets</div>';
-            return;
-        }
-        // Fetch markets for all checked leagues (merge results)
-        Promise.all(checkedLeagues.map(lg =>
-            fetch(`/api/markets?sport=${encodeURIComponent(lg.sport)}&league=${encodeURIComponent(lg.key)}`)
-                .then(res => res.json())
-                .catch(() => [])
-        )).then(results => {
-            // Flatten and deduplicate by key
-            let markets = results.flat().filter(Boolean);
-            const seen = new Set();
-            markets = markets.filter(mk => {
-                if (!mk.key || seen.has(mk.key)) return false;
-                seen.add(mk.key);
-                return true;
-            });
-            if (marketsDiv) {
-                if (markets.length === 0) {
-                    marketsDiv.innerHTML = '<div class="text-muted small">No markets found for selected league(s)</div>';
-                } else {
-                    marketsDiv.innerHTML = markets.map(mk =>
-                        `<div class="form-check form-check-inline mb-1">
-                            <input class="form-check-input" type="checkbox" name="markets" value="${mk.key}" id="market_${mk.key}">
-                            <label class="form-check-label" for="market_${mk.key}">${mk.title || mk.name}</label>
-                        </div>`
-                    ).join('');
-                }
-            }
-        });
-    }
-
-    // Initial fetch
-    if (sportsDiv) fetchSports();
-});
-</script>
 {% endblock %}

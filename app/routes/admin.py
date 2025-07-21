@@ -1,61 +1,41 @@
 
 
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.utils.auth_utils import get_current_user, get_db
-from app.models import User
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask_login import login_required, current_user
+from app.models import User, Betslip, AuditLog
+from app import db
 
-router = APIRouter(prefix="/admin120724", tags=["admin"])
+admin_bp = Blueprint("admin", __name__)
 
-def admin_required(user=Depends(get_current_user)):
-    if not getattr(user, "is_admin", False):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
-    return user
+def admin_required():
+    if not current_user.is_authenticated or not getattr(current_user, "is_admin", False):
+        abort(403)
 
-# Show number of users
-@router.get("/users_count")
-def users_count(db: Session = Depends(get_db), user=Depends(admin_required)):
-    count = db.query(User).count()
-    return {"users_count": count}
+# Show number of users and dashboard
+@admin_bp.route("/dashboard")
+@login_required
+def admin_dashboard():
+    admin_required()
+    stats = {
+        "total_users": User.query.count(),
+        "paid_users": User.query.join(User.role).filter_by(name="pro").count() if hasattr(User, 'role') else 0,
+        "total_slips": Betslip.query.count(),
+        "revenue": 0.0  # Replace with actual revenue logic if available
+    }
+    recent_slips = Betslip.query.order_by(Betslip.created_at.desc()).limit(10).all()
+    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(20).all()
+    return render_template("admin/dashboard.html", stats=stats, recent_slips=recent_slips, logs=logs)
 
-# Show number of slips per day
-@router.get("/slips_per_day")
-def slips_per_day(db: Session = Depends(get_db), user=Depends(admin_required)):
-    # Placeholder: Replace with actual query
-    count = db.execute("SELECT COUNT(*) FROM betslips WHERE DATE(created_at) = CURRENT_DATE").scalar()
-    return {"slips_today": count}
 
-# Show popular leagues/sports
-@router.get("/popular_leagues")
-def popular_leagues(db: Session = Depends(get_db), user=Depends(admin_required)):
-    # Placeholder: Replace with actual query
-    leagues = ["Premier League", "La Liga", "Bundesliga"]
-    return {"popular_leagues": leagues}
-
-# Show ad clicks
-@router.get("/ad_clicks")
-def ad_clicks(db: Session = Depends(get_db), user=Depends(admin_required)):
-    # Placeholder: Replace with actual query
-    clicks = 123
-    return {"ad_clicks": clicks}
-
-# Toggle ads on/off by user
-@router.post("/toggle_ads/{user_id}")
-def toggle_ads(user_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
-    target_user = db.query(User).filter_by(id=user_id).first()
+# Promote user to admin (JSON)
+@admin_bp.route("/promote/<int:user_id>", methods=["POST"])
+@login_required
+def promote_user(user_id):
+    admin_required()
+    target_user = User.query.filter_by(id=user_id).first()
     if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    target_user.ads_enabled = not getattr(target_user, "ads_enabled", True)
-    db.commit()
-    return {"user_id": user_id, "ads_enabled": target_user.ads_enabled}
-
-# Promote user to admin
-@router.post("/promote/{user_id}")
-def promote_user(user_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
-    target_user = db.query(User).filter_by(id=user_id).first()
-    if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        return {"error": "User not found"}, 404
     target_user.is_admin = True
-    db.commit()
+    db.session.commit()
     return {"user_id": user_id, "is_admin": True}
