@@ -1,7 +1,20 @@
+from wtforms.validators import DataRequired, Email, EqualTo, Length
+
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, FloatField
+
+# BetslipForm for dashboard betslip generator
+class BetslipForm(FlaskForm):
+    league = SelectField("League", choices=[], validators=[DataRequired()])
+    market = SelectField("Market", choices=[], validators=[DataRequired()])
+    min_odds = FloatField("Min Odds", validators=[DataRequired()])
+    submit = SubmitField("Generate")
+
+class AdminLoginForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Login as Admin")
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])

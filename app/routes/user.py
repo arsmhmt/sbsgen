@@ -30,11 +30,17 @@ def login():
     return render_template("user/login.html", form=form)
 
 
+from app.forms import BetslipForm
+
 @user_bp.route("/dashboard")
 @login_required
 def dashboard():
     ads = Ad.query.order_by(Ad.display_order).all()
-    return render_template("user/dashboard.html", user=current_user, ads=ads)
+    form = BetslipForm()
+    # Example: populate choices dynamically (replace with DB/API as needed)
+    form.league.choices = [("epl", "English Premier League"), ("laliga", "La Liga"), ("seriea", "Serie A")]
+    form.market.choices = [("1x2", "1X2"), ("over_under", "Over/Under"), ("btts", "Both Teams To Score")]
+    return render_template("user/dashboard.html", user=current_user, ads=ads, form=form)
 
 # Add account route to match sidebar link
 @user_bp.route("/account")
@@ -47,6 +53,16 @@ def account():
 @login_required
 def betslips():
     return render_template("user/betslips.html", user=current_user)
+
+
+# Add generate_betslip route to handle betslip generation from dashboard
+@user_bp.route("/generate_betslip", methods=["POST"])
+@login_required
+def generate_betslip():
+    # TODO: Implement actual betslip generation logic
+    # For now, just flash a message and redirect back to dashboard
+    flash("Betslip generation is not yet implemented.", "info")
+    return redirect(url_for("user.dashboard"))
 
 
 # Add referrals route to match sidebar link

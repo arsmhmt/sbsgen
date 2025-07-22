@@ -1,0 +1,51 @@
+/* main.css - Custom styles for SmartBetslip main site */
+
+body {
+  background: #f8fafc;
+  color: #222;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+header.bg-dark {
+  background: #23272b !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+.btn-success, .btn-primary {
+  border-radius: 30px;
+  font-weight: 600;
+}
+
+section.bg-gradient {
+  background: linear-gradient(120deg, #2c3e50, #27ae60) !important;
+}
+
+#features img {
+  filter: drop-shadow(0 2px 8px rgba(39,174,96,0.12));
+}
+
+footer.bg-dark {
+  background: #23272b !important;
+  color: #fff;
+}
+
+.navbar a, header nav a {
+  transition: color 0.2s;
+}
+
+.navbar a:hover, header nav a:hover {
+  color: #27ae60 !important;
+}
+
+@media (max-width: 768px) {
+  .container.d-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  header nav {
+    margin-top: 1em;
+  }
+}

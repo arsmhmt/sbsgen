@@ -4,43 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SmartSlip{% endblock %}</title>
+    <title>{% block title %}SmartBetSlip{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/ai-icon.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/main.css">
     <style>
         body {
-            background-color: #121212;
-            color: #eee;
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #f5f6fa;
+            min-height: 100vh;
         }
-        .nav-link, .navbar-brand {
+        .navbar {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            background: rgba(18,18,18,0.98) !important;
+            border-bottom: 1px solid #232323;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.7rem;
+            letter-spacing: 1px;
+            color: #27ae60 !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i {
+            font-size: 2rem;
+            margin-right: 0.5rem;
+            color: #2196f3;
+        }
+        .nav-link {
             color: #f1f1f1 !important;
+            font-size: 1.08rem;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+            transition: color 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #27ae60 !important;
         }
         .btn-slip {
             background: linear-gradient(90deg, #27ae60, #2196f3);
             color: white;
             font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            padding: 0.6em 2em;
+            box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+            transition: background 0.2s;
+        }
+        .btn-slip:hover {
+            background: linear-gradient(90deg, #2196f3, #27ae60);
         }
         .betslip-box {
-            background-color: #1f1f1f;
-            border-radius: 12px;
-            padding: 1em;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            background-color: #181a1b;
+            border-radius: 16px;
+            padding: 1.5em;
+            box-shadow: 0 0 18px rgba(0,0,0,0.18);
+        }
+        .hero {
+            background: linear-gradient(120deg, #232526 60%, #27ae60 100%);
+            border-radius: 18px;
+            box-shadow: 0 4px 32px rgba(33,150,243,0.10);
+            padding: 3.5em 2em 2.5em 2em;
+            margin-bottom: 2.5em;
+            text-align: center;
+        }
+        .hero .display-4 {
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .hero .lead {
+            color: #d0f8ce;
+            font-size: 1.3rem;
+        }
+        .hero .btn-slip {
+            font-size: 1.2rem;
+            margin-top: 1.2em;
         }
     </style>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">SmartSlip</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fa-solid fa-brain"></i> SmartBetSlip
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="/auth/login">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
+                        <li class="nav-item ms-2"><a class="btn btn-slip" href="{{ url_for('auth.signup') }}">Sign Up Free</a></li>
                     {% endif %}
                 </ul>
             </div>

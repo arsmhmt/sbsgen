@@ -6,11 +6,15 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def index():
-    return render_template("index.html", year=datetime.now().year)
+    return render_template("main/index.html", year=datetime.now().year)
 
 @main_bp.route("/pricing")
 def pricing():
-    return render_template("pricing.html")
+    return render_template("main/pricing.html")
+
+@main_bp.route("/features")
+def features():
+    return render_template("main/features.html")
 
 @main_bp.route("/terms")
 def terms():

@@ -1,40 +1,35 @@
-{% extends 'admin/dashboard.html' %}
+{% extends 'admin/base.html' %}
 {% block content %}
-<div class="container py-4">
-  <h2 class="mb-4">Users List</h2>
-  <table class="table table-striped">
+<h2 class="mb-4">Registered Users</h2>
+<table class="table table-striped table-hover">
     <thead>
-      <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Is Admin</th>
-        <th>Is Pro</th>
-        <th>Created At</th>
-      </tr>
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created At</th>
+        </tr>
     </thead>
     <tbody>
-      {% for user in users %}
-      <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
-        <td>
-          {{ 'Yes' if user.is_pro else 'No' }}
-          {% if not user.is_pro %}
-          <form method="post" action="{{ url_for('admin.set_user_pro', user_id=user.id) }}" style="display:inline;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-success ms-2" onclick="return confirm('Set this user as Pro?');">
-              <i class="bi bi-star-fill"></i> Set as Pro
-            </button>
-          </form>
-          {% endif %}
-        </td>
-        <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else '' }}</td>
-      </tr>
-      {% endfor %}
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.username }}</td>
+            <td>
+                {{ user.role.name if user.role else 'N/A' }}
+                {% if user.role and user.role.name != 'pro' %}
+                <form method="POST" action="{{ url_for('admin.set_pro_user', user_id=user.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-primary ms-2">Set as Pro</button>
+                </form>
+                {% else %}
+                <span class="text-success ms-2">Pro</span>
+                {% endif %}
+            </td>
+            <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else '' }}</td>
+        </tr>
+        {% endfor %}
     </tbody>
-  </table>
-</div>
+</table>
 {% endblock %}

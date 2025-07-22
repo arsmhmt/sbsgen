@@ -1,173 +1,120 @@
 {% extends "user/base.html" %}
-{% block title %}Dashboard | SmartSlip{% endblock %}
-{% block user_content %}
-
-<h2 class="mb-4 fw-semibold">🎯 Smart Betslip Generator</h2>
-
-<form id="betslip-form" method="POST" class="card p-4 shadow-sm rounded-3 mb-4">
-  <div class="row g-3">
-    <div class="col-md-6">
-      <label for="market" class="form-label">Market Type</label>
-      <select id="market" name="market" class="form-select">
-        <option value="goals">Total Goals</option>
-        <option value="corners">Corners</option>
-        <option value="btts">Both Teams to Score</option>
-        <option value="handicap">Asian Handicap</option>
-      </select>
+{% block content %}
+<div class="container-fluid px-4 mt-4">
+  <div class="row align-items-center mb-4">
+    <div class="col-lg-8">
+      <h2 class="fw-bold">Welcome, {{ user.username or user.email }} 👋</h2>
+      <p class="text-muted">Generate smart betslips powered by AI and data-driven insights</p>
     </div>
-    <div class="col-md-3">
-      <label for="match_count" class="form-label">Match Count</label>
-      <input type="number" id="match_count" name="match_count" class="form-control" min="1" max="20" value="5">
+    <div class="col-lg-4 text-end">
+      {% if not user.is_premium %}
+      <a href="{{ url_for('main.pricing') }}" class="btn btn-gradient-success">Upgrade to Pro 🚀</a>
+      {% endif %}
     </div>
-    <div class="col-md-3">
-      <label class="form-label d-block">Include Odds</label>
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" name="include_odds" id="include_odds" checked>
-        <label class="form-check-label" for="include_odds">Yes</label>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card card-glass text-center p-3">
+        <h5 class="text-muted">Total Bets Generated</h5>
+        <h3 class="fw-bold">{{ user.total_bets or 0 }}</h3>
       </div>
     </div>
-    <div class="col-md-6">
-      <label for="min_odds" class="form-label">Min Total Odds</label>
-      <input type="text" id="min_odds" name="min_odds" class="form-control" placeholder="e.g. 2.50">
+    <div class="col-md-4">
+      <div class="card card-glass text-center p-3">
+        <h5 class="text-muted">Avg. Win Probability</h5>
+        <h3 class="fw-bold">{{ user.avg_win_rate or "—" }}%</h3>
+      </div>
     </div>
-    <div class="col-md-6">
-      <label for="max_odds" class="form-label">Max Total Odds</label>
-      <input type="text" id="max_odds" name="max_odds" class="form-control" placeholder="e.g. 10.00">
+    <div class="col-md-4">
+      <div class="card card-glass text-center p-3">
+        <h5 class="text-muted">Your Plan</h5>
+        <h3 class="fw-bold text-primary">{{ 'Pro' if user.is_premium else 'Free' }}</h3>
+      </div>
     </div>
   </div>
-  <div class="d-grid mt-4">
-    <button type="submit" class="btn btn-primary btn-lg">⚡ Generate Smart Slip</button>
-  </div>
-</form>
 
-<!-- Betslip Output -->
-<div class="card shadow-sm p-3 rounded-3 mb-4" id="betslip-result">
-  <h5 class="mb-3">🧠 AI-Generated Betslip</h5>
-  {% if betslip %}
-    <ul class="list-group">
-      {% for match in betslip %}
-        <li class="list-group-item d-flex flex-column align-items-start">
-          <div class="d-flex w-100 justify-content-between align-items-center">
-            <span>{{ match.name }}</span>
-            <span class="badge bg-success">{{ match.odds }}</span>
+  <!-- Betslip Generator -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title fw-semibold">🎯 Generate a Smart Betslip</h5>
+      <form method="POST" action="{{ url_for('user.generate_betslip') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            {{ form.league.label(class="form-label") }}
+            {{ form.league(class="form-select") }}
           </div>
-          <div class="prediction-section mt-2">
-            <strong>📊 Win Probability:</strong>
-            {% if user.is_pro %}
-              <div class="progress prediction-bar mt-1" style="height: 22px; background-color: #e9ecef; border-radius: 12px;">
-                <div class="progress-bar"
-                     role="progressbar"
-                     style="
-                       width: {{ match.win_probability }}%;
-                       background-color:
-                         {% if match.win_probability > 75 %}#28a745
-                         {% elif match.win_probability > 50 %}#ffc107
-                         {% else %}#dc3545
-                         {% endif %};
-                       border-radius: 12px;
-                       font-weight: bold;
-                       text-align: center;
-                     ">
-                  {{ match.win_probability }}%
-                </div>
-              </div>
-            {% else %}
-              <div class="blurred-bar mt-1" style="
-                  height: 22px;
-                  background: repeating-linear-gradient(
-                    45deg,
-                    #ccc,
-                    #ccc 10px,
-                    #ddd 10px,
-                    #ddd 20px
-                  );
-                  border-radius: 12px;
-                  text-align: center;
-                  color: #555;
-                  font-size: 0.9rem;
-                  line-height: 22px;
-                  font-weight: bold;
-                ">
-                🔒 Pro Only – Upgrade to Unlock
-              </div>
-            {% endif %}
+          <div class="col-md-4">
+            {{ form.market.label(class="form-label") }}
+            {{ form.market(class="form-select") }}
           </div>
+          <div class="col-md-2">
+            {{ form.min_odds.label(class="form-label") }}
+            {{ form.min_odds(class="form-control", placeholder="e.g. 1.50") }}
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" type="submit">Generate</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Betslip Results -->
+  {% if generated_betslip %}
+  <div class="card border-success mb-4">
+    <div class="card-header bg-success text-white">Your Smart Betslip</div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for match in generated_betslip %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <strong>{{ match.team1 }} vs {{ match.team2 }}</strong><br>
+            Market: {{ match.market }} – Odd: {{ match.odd }}
+          </span>
+          {% if match.ai_probability %}
+            <span class="badge bg-info text-dark">Win %: {{ match.ai_probability }}%</span>
+          {% endif %}
         </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="alert alert-info">No betslip generated yet. Fill the form above to get started.</div>
-  {% endif %}
-</div>
-
-<!-- Recent Slips -->
-<div class="card shadow-sm p-3 rounded-3">
-  <h5 class="mb-3">📜 Recent Slips</h5>
-  {% if recent_betslips %}
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Date</th>
-          <th scope="col">Slip</th>
-          <th scope="col">Total Odds</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for slip in recent_betslips %}
-          <tr>
-            <td>{{ slip.created_at.strftime('%Y-%m-%d') }}</td>
-            <td>
-              {{ slip.summary }}
-              <div class="prediction-section mt-2">
-                <strong>📊 Win Probability:</strong>
-                {% if user.is_pro %}
-                  <div class="progress prediction-bar mt-1" style="height: 22px; background-color: #e9ecef; border-radius: 12px;">
-                    <div class="progress-bar"
-                         role="progressbar"
-                         style="
-                           width: {{ slip.win_probability }}%;
-                           background-color:
-                             {% if slip.win_probability > 75 %}#28a745
-                             {% elif slip.win_probability > 50 %}#ffc107
-                             {% else %}#dc3545
-                             {% endif %};
-                           border-radius: 12px;
-                           font-weight: bold;
-                           text-align: center;
-                         ">
-                      {{ slip.win_probability }}%
-                    </div>
-                  </div>
-                {% else %}
-                  <div class="blurred-bar mt-1" style="
-                      height: 22px;
-                      background: repeating-linear-gradient(
-                        45deg,
-                        #ccc,
-                        #ccc 10px,
-                        #ddd 10px,
-                        #ddd 20px
-                      );
-                      border-radius: 12px;
-                      text-align: center;
-                      color: #555;
-                      font-size: 0.9rem;
-                      line-height: 22px;
-                      font-weight: bold;
-                    ">
-                    🔒 Pro Only – Upgrade to Unlock
-                  </div>
-                {% endif %}
-              </div>
-            </td>
-            <td><span class="badge bg-warning text-dark">{{ slip.total_odds }}</span></td>
-          </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="alert alert-light">No previous slips found.</div>
+      </ul>
+    </div>
+  </div>
   {% endif %}
-</div>
 
+  <!-- Recent Activity -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title fw-semibold">📈 Recent Betslips</h5>
+      <table class="table table-sm table-hover align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Market</th>
+            <th>Odd</th>
+            <th>Predicted Win%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for slip in recent_slips %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ slip.created_at.strftime('%d %b %Y') }}</td>
+            <td>{{ slip.market }}</td>
+            <td>{{ slip.total_odd }}</td>
+            <td>{{ slip.ai_win_probability or '—' }}%</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted">No betslips yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

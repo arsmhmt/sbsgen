@@ -1,0 +1,40 @@
+/* static/css/style.css - Minimal starter for SmartSlip */
+body {
+  background: #111;
+  color: #eee;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.navbar, .navbar-brand {
+  background: #222;
+  color: #fff !important;
+}
+.btn-success, .btn-outline-success {
+  border-radius: 6px;
+}
+.card {
+  background: #181818;
+  color: #fff;
+  border: 1px solid #333;
+}
+input, select, textarea {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #27ae60;
+  outline: none;
+}
+.btn-primary, .btn-success {
+  background: linear-gradient(90deg, #27ae60, #2196f3);
+  border: none;
+}
+.btn-primary:hover, .btn-success:hover {
+  background: linear-gradient(90deg, #2196f3, #27ae60);
+}
+footer {
+  background: #000;
+  color: #aaa;
+  padding: 20px 0;
+  text-align: center;
+}

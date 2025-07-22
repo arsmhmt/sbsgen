@@ -1,37 +1,70 @@
-{% extends "base.html" %}
 
-{% block title %}User Panel | SmartSlip{% endblock %}
+{% extends "base.html" %}
+{% block title %}Smart Betslip – Dashboard{% endblock %}
+{% block head %}
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/ai-icon.png') }}">
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3 mb-4">
-      <div class="card shadow-sm rounded-3">
-        <div class="card-body">
-          <h5 class="mb-3">👤 {{ user.name or user.email }}</h5>
-          <div class="list-group">
-            <a href="{{ url_for('user.dashboard') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
-              🏠 Dashboard
-            </a>
-            <a href="{{ url_for('user.account') }}" class="list-group-item list-group-item-action">
-              ⚙️ Account Settings
-            </a>
-            <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action text-danger">
-              🚪 Logout
-            </a>
-          </div>
-          <a href="{{ url_for('main.pricing') }}" class="btn btn-gradient w-100 mt-3 fw-bold">
-            🚀 Upgrade to Pro
-          </a>
-        </div>
-      </div>
+<div class="d-flex" id="wrapper">
+  <!-- Sidebar -->
+  <div class="border-end bg-dark text-white" id="sidebar-wrapper">
+    <div class="sidebar-heading text-center py-4 fs-4 fw-bold bg-gradient">
+      <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Smart Betslip
     </div>
-
-    <!-- Main Content -->
-    <div class="col-md-9">
-      {% block user_content %}{% endblock %}
+    <div class="list-group list-group-flush px-2">
+      <a href="{{ url_for('user.dashboard') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-house-door-fill me-2"></i> Dashboard
+      </a>
+      <a href="{{ url_for('user.generate_betslip') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-magic me-2"></i> AI Betslip Generator
+      </a>
+      <a href="{{ url_for('user.saved_betslips') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-clock-history me-2"></i> Saved Slips
+      </a>
+      <a href="{{ url_for('user.account') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-person-circle me-2"></i> Account
+      </a>
+      <a href="{{ url_for('main.pricing') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-gem me-2"></i> Upgrade
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="list-group-item list-group-item-action bg-dark text-white">
+        <i class="bi bi-box-arrow-right me-2"></i> Logout
+      </a>
     </div>
   </div>
+
+  <!-- Page Content -->
+  <div id="page-content-wrapper" class="w-100">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient sticky-top px-3">
+      <div class="container-fluid">
+        <button class="btn btn-outline-light d-lg-none" id="menu-toggle">
+          <i class="bi bi-list"></i>
+        </button>
+        <span class="navbar-text ms-3">
+          {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('user.signup') }}" class="btn btn-success btn-sm ms-2">Sign Up</a>
+          {% endif %}
+          Welcome, {{ current_user.username or "User" }}
+        </span>
+        <div class="ms-auto">
+          <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-light">Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container-fluid py-4 px-4">
+      {% block dashboard_content %}
+      <!-- Child pages will insert content here -->
+      {% endblock %}
+    </main>
+  </div>
 </div>
+
+<!-- Sidebar toggle script -->
+<script>
+  document.getElementById("menu-toggle").addEventListener("click", function () {
+    document.getElementById("wrapper").classList.toggle("toggled");
+  });
+</script>
 {% endblock %}

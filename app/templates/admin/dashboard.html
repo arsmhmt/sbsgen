@@ -1,115 +1,85 @@
 {% extends "admin/base.html" %}
 
-{% block title %}Admin Panel – SmartSlip{% endblock %}
-
 {% block content %}
-<div class="container-fluid mt-4">
-  <h2 class="mb-4">Welcome, Admin</h2>
+<h4 class="mb-4">Welcome, Admin 👋</h4>
 
-  <div class="row g-4">
-    <!-- Users -->
+<div class="row g-3 mb-4">
     <div class="col-md-3">
-      <div class="card text-white bg-success shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-users me-2"></i>Total Users</h5>
-          <h3>{{ stats.total_users }}</h3>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Users</h6>
+                <h3>{{ user_count }}</h3>
+            </div>
         </div>
-      </div>
     </div>
-
-    <!-- Paid Users -->
     <div class="col-md-3">
-      <div class="card text-white bg-primary shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-star me-2"></i>Pro Members</h5>
-          <h3>{{ stats.paid_users }}</h3>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Betslips Generated</h6>
+                <h3>{{ betslip_count }}</h3>
+            </div>
         </div>
-      </div>
     </div>
-
-    <!-- Generated Slips -->
     <div class="col-md-3">
-      <div class="card text-white bg-info shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-ticket-alt me-2"></i>Slips Generated</h5>
-          <h3>{{ stats.total_slips }}</h3>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Pro Users</h6>
+                <h3>{{ pro_user_count }}</h3>
+            </div>
         </div>
-      </div>
     </div>
-
-    <!-- Revenue -->
     <div class="col-md-3">
-      <div class="card text-white bg-warning shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-coins me-2"></i>Revenue (USD)</h5>
-          <h3>${{ stats.revenue }}</h3>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Payments Received</h6>
+                <h3>{{ total_revenue }} USDT</h3>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <div class="row g-4 mt-4">
-    <!-- Recent Slips -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <strong><i class="fas fa-history me-2"></i>Recent Betslips</strong>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush">
-            {% for slip in recent_slips %}
-            <li class="list-group-item d-flex flex-column align-items-start">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <span>{{ slip.user_email or 'Anonymous' }} - {{ slip.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
-                <a href="{{ url_for('admin.view_slip', slip_id=slip.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
-              </div>
-              <div class="win-probability-box mt-2">
-                <strong>🏆 Win %:</strong>
-                {% if slip.user.is_pro %}
-                  <span class="probability-value" style="color: {% if slip.win_probability > 70 %}green{% elif slip.win_probability > 40 %}orange{% else %}red{% endif %};">
-                    {{ slip.win_probability }}%
-                  </span>
-                  <div class="progress mt-1" style="height: 18px;">
-                    <div class="progress-bar" role="progressbar"
-                         style="width: {{ slip.win_probability }}%; background-color:
-                           {% if slip.win_probability > 70 %}#28a745{% elif slip.win_probability > 40 %}#ffc107{% else %}#dc3545{% endif %};">
-                      {{ slip.win_probability }}%
-                    </div>
-                  </div>
-                {% else %}
-                  <span class="locked-feature">Pro only 🔒</span>
-                  <div class="blurred-bar mt-1" style="background: #eee; color: #888; text-align: center; border-radius: 4px; height: 18px; line-height: 18px;">Pro only</div>
-                {% endif %}
-              </div>
-            </li>
-            {% else %}
-            <li class="list-group-item text-muted">No recent slips</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- System Logs -->
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <strong><i class="fas fa-clipboard-list me-2"></i>System Logs</strong>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush">
-            {% for log in logs[:8] %}
-            <li class="list-group-item small text-muted">
-              <strong>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</strong> – {{ log.message }}
-            </li>
-            {% else %}
-            <li class="list-group-item text-muted">No logs found</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <strong>Latest Registered Users</strong>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Registered</th>
+                        <th scope="col">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in latest_users %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if user.role and user.role.name == 'superadmin' %}
+                                <span class="badge bg-danger">Superadmin</span>
+                            {% elif user.role and user.role.name == 'admin' %}
+                                <span class="badge bg-warning text-dark">Admin</span>
+                            {% else %}
+                                <span class="badge bg-primary">User</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

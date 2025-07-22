@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_dance.contrib.google import google
+from flask_dance.contrib.google import make_google_blueprint, google
 from dotenv import load_dotenv
 from flask_migrate import Migrate # Import Flask-Migrate
 from flask_wtf import CSRFProtect
@@ -45,6 +45,16 @@ def create_app():
     migrate.init_app(app, db)
     login_manager.login_view = 'auth.login'
     CSRFProtect(app)
+
+
+    # --- Google OAuth Blueprint ---
+    google_bp = make_google_blueprint(
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        scope=["profile", "email"],
+        redirect_url="/login/google/authorized"
+    )
+    app.register_blueprint(google_bp, url_prefix="/login/google")
 
     # Register Flask blueprints
     from app.routes.user import user_bp
